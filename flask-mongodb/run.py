@@ -2,7 +2,7 @@ from flask import Flask
 from pymongo import MongoClient
 
 try:
-    conn = MongoClient("localhost", 12395)
+    conn = MongoClient("localhost", 123950)
     print("Connected successfully!!!")
 except:
     print("Could not connect to MongoDB")
