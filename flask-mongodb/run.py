@@ -1,10 +1,11 @@
 from flask import Flask
 from pymongo import MongoClient
 
+
 try:
-    conn = MongoClient("localhost", 1235)
+    conn = MongoClient("localhost", 26820)
     print("Connected successfully!!!")
-except:
+finally:
     print("Could not connect to MongoDB")
 
 # database
@@ -36,15 +37,28 @@ def getTemp():
         print(record["value"])
         valeur.append(record["value"])
     print(valeur)
+    i = 0
+    y = len(valeur)
+    y /= 3
+    y = int(y)
+    y = range(0, y)
+    print("y: ")
+    print(y)
+    presets = {}
+    for x in y:
+        preset = {
+            "temp": valeur[i+0],
+            "temp2": valeur[i+1],
+            "humidity": valeur[i+2],
+        }
+        print("preset")
+        print(preset)
+        i += 3
+        presets[i] = preset
+        print("presets")
+        print(presets)
+    return presets
 
-    preset = {
-        "temp": valeur[0],
-        "temp2": valeur[1],
-        "humidity": valeur[2],
-    }
-    print("preset")
-    print(preset)
-    return preset
 
 if __name__ == "__main__":
     print ('Api start ! ')
