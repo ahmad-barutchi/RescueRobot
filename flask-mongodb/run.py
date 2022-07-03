@@ -3,7 +3,6 @@ from pymongo import MongoClient
 import serial
 import time
 
-
 device = 'COM3'  # this will have to be changed to the serial port you are using
 try:
     print("Trying...", device)
@@ -11,9 +10,8 @@ try:
 except:
     print("Failed to connect on", device)
 
-
 try:
-    conn = MongoClient("localhost", 4793)
+    conn = MongoClient("localhost", 16577)
     print("Connected successfully!!!")
 except:
     print("Could not connect to MongoDB")
@@ -39,7 +37,7 @@ try:
             "temp2": pieces[1],
             "humidity": pieces[2],
             "pos": pieces[3],
-            "humain": pieces[4],
+            "human": pieces[4],
             "fire": pieces[5]
         }
         # Here we are going to insert the data into the Database
@@ -63,7 +61,7 @@ def get_temp():
         valeur.append(record["temp2"])
         valeur.append(record["humidity"])
         valeur.append(record["pos"])
-        valeur.append(record["humain"])
+        valeur.append(record["human"])
         valeur.append(record["fire"])
     print(valeur)
     i = 0
@@ -76,22 +74,22 @@ def get_temp():
     presets = {}
     for x in y:
         preset = {
-            "temp": valeur[i+0],
-            "temp2": valeur[i+1],
-            "humidity": valeur[i+2],
-            "pos": valeur[i+3],
-            "humain": valeur[i+4],
-            "fire": valeur[i+5]
+            "temp": valeur[i + 0],
+            "temp2": valeur[i + 1],
+            "humidity": valeur[i + 2],
+            "pos": valeur[i + 3],
+            "human": valeur[i + 4],
+            "fire": valeur[i + 5]
         }
         print("preset")
         print(preset)
         i += 6
-        presets[i] = preset
+        presets[i-6] = preset
         print("presets")
         print(presets)
     return presets
 
 
 if __name__ == "__main__":
-    print ('Api start ! ')
+    print('Api start ! ')
     app.run(debug=True)
