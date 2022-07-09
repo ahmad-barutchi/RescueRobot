@@ -22,16 +22,20 @@ import { D3AdvancedPieComponent } from './d3/d3-advanced-pie.component';
 import { EchartsLineComponent } from './echarts/echarts-line.component';
 import { EchartsPieComponent } from './echarts/echarts-pie.component';
 import { EchartsBarComponent } from './echarts/echarts-bar.component';
+import { IgniteuiMultigraphComponent} from './igniteUi/igniteui-multigraph.component';
 import { EchartsMultipleXaxisComponent } from './echarts/echarts-multiple-xaxis.component';
 import { EchartsAreaStackComponent } from './echarts/echarts-area-stack.component';
 import { EchartsBarAnimationComponent } from './echarts/echarts-bar-animation.component';
 import { EchartsRadarComponent } from './echarts/echarts-radar.component';
+import { IgxFinancialChartModule, IgxLegendModule } from 'igniteui-angular-charts';
+import { RobotDataService } from './igniteUi/RobotDataService';
 
 const components = [
   ChartjsBarComponent,
   ChartjsLineComponent,
   ChartjsPieComponent,
   ChartjsMultipleXaxisComponent,
+  IgniteuiMultigraphComponent,
   ChartjsBarHorizontalComponent,
   ChartjsRadarComponent,
   D3BarComponent,
@@ -57,7 +61,10 @@ const components = [
     NgxChartsModule,
     ChartModule,
     NbCardModule,
+    IgxFinancialChartModule,
+    IgxLegendModule,
   ],
+  providers: [RobotDataService],
   declarations: [...routedComponents, ...components],
 })
 export class ChartsModule {}

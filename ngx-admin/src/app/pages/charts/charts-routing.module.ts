@@ -5,6 +5,7 @@ import { ChartsComponent } from './charts.component';
 import { EchartsComponent } from './echarts/echarts.component';
 import { D3Component } from './d3/d3.component';
 import { ChartjsComponent } from './chartjs/chartjs.component';
+import {IgniteuiMultigraphComponent} from "./igniteUi/igniteui-multigraph.component";
 
 const routes: Routes = [{
   path: '',
@@ -18,6 +19,9 @@ const routes: Routes = [{
   }, {
     path: 'chartjs',
     component: ChartjsComponent,
+  }, {
+    path: 'igniteUi',
+    component: IgniteuiMultigraphComponent,
   }],
 }];
 
@@ -32,4 +36,5 @@ export const routedComponents = [
   EchartsComponent,
   D3Component,
   ChartjsComponent,
+  IgniteuiMultigraphComponent,
 ];

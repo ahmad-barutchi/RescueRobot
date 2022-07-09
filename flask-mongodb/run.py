@@ -13,7 +13,7 @@ except:
     print("Failed to connect on", device)
 
 try:
-    conn = MongoClient("localhost", 9517)
+    conn = MongoClient("localhost", 1156)
     print("Connected successfully to mongoDB!!!")
 except:
     print("Could not connect to MongoDB")
@@ -83,8 +83,8 @@ def get_temp():
             "human": valeur[i + 4],
             "fire": valeur[i + 5]
         }
-        i += 6
-        presets[i-6] = preset
+        presets[i] = preset
+        i += 1
     print("presets")
     print(presets)
     response = flask.jsonify(presets)

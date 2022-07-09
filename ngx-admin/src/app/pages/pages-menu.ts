@@ -171,6 +171,10 @@ export const MENU_ITEMS: NbMenuItem[] = [
     icon: 'pie-chart-outline',
     children: [
       {
+        title: 'IgniteUi',
+        link: '/pages/charts/igniteUi',
+      },
+      {
         title: 'Echarts',
         link: '/pages/charts/echarts',
       },

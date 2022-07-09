@@ -14,7 +14,8 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
   data: {};
   options: any;
   themeSubscription: any;
-  temps: Array<string> = [];
+  public temps: Array<string> = [];
+  public temp: any;
 
   constructor(private theme: NbThemeService,
   private httpClient: HttpClient,
@@ -24,36 +25,46 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
       const colors: any = config.variables;
       const chartjs: any = config.variables.chartjs;
       this.getTemps();
-      this.data = {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-        datasets: [{
-          label: 'dataset - big points',
-          data: [this.random(), this.random(), this.random(), this.random(), this.random(), this.random()],
-          borderColor: colors.primary,
-          backgroundColor: colors.primary,
-          fill: false,
-          borderDash: [5, 5],
-          pointRadius: 8,
-          pointHoverRadius: 10,
-        }, {
-          label: 'dataset - individual point sizes',
-          data: [this.random(), this.random(), this.random(), this.random(), this.random(), this.random()],
-          borderColor: colors.dangerLight,
-          backgroundColor: colors.dangerLight,
-          fill: false,
-          borderDash: [5, 5],
-          pointRadius: 8,
-          pointHoverRadius: 10,
-        }, {
-          label: 'dataset - large pointHoverRadius',
-          data: [this.random(), this.random(), this.random(), this.random(), this.random(), this.random()],
-          borderColor: colors.info,
-          backgroundColor: colors.info,
-          fill: false,
-          pointRadius: 8,
-          pointHoverRadius: 10,
-        }],
-      };
+      this.httpClient.get<any>('http://localhost:5000/get-temp',
+        {headers: new HttpHeaders({'Access-Control-Allow-Origin': 'http://localhost:5000', 'Access-Control-Allow-Headers': '*'})}).subscribe(
+        temps => {
+          this.temps = temps;
+          console.log('first temps: ', this.temps[0]['temp']);
+          console.log('first temps: ', this.temps[6]);
+          console.log('after method: ', this.temps[0]['temp']);
+          this.temp = this.temps[0]['temp'];
+          this.data = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+            datasets: [{
+              label: 'dataset - big points',
+              data: [this.temp, this.random(), this.random(), this.random(), this.random(), this.random()],
+              borderColor: colors.primary,
+              backgroundColor: colors.primary,
+              fill: false,
+              borderDash: [5, 5],
+              pointRadius: 8,
+              pointHoverRadius: 10,
+            }, {
+              label: 'dataset - individual point sizes',
+              data: [this.random(), this.random(), this.random(), this.random(), this.random(), this.random()],
+              borderColor: colors.dangerLight,
+              backgroundColor: colors.dangerLight,
+              fill: false,
+              borderDash: [5, 5],
+              pointRadius: 8,
+              pointHoverRadius: 10,
+            }, {
+              label: 'dataset - large pointHoverRadius',
+              data: [this.random(), this.random(), this.random(), this.random(), this.random(), this.random()],
+              borderColor: colors.info,
+              backgroundColor: colors.info,
+              fill: false,
+              pointRadius: 8,
+              pointHoverRadius: 10,
+            }],
+          };
+        },
+      );
 
       this.options = {
         responsive: true,
@@ -106,13 +117,6 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
   }
 
   getTemps() {
-    this.httpClient.get<any>('http://localhost:5000/get-temp',
-      {headers: new HttpHeaders({'Access-Control-Allow-Origin': 'http://localhost:5000', 'Access-Control-Allow-Headers': '*'})}).subscribe(
-      temps => {
-        this.temps = temps;
-        console.log('all tenants: ', this.temps);
-      },
-    );
   }
 
   ngOnDestroy(): void {

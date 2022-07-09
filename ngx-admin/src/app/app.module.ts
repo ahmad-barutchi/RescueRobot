@@ -6,26 +6,19 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { CoreModule } from './@core/core.module';
 import { ThemeModule } from './@theme/theme.module';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import {
-  NbChatModule,
-  NbDatepickerModule,
-  NbDialogModule,
-  NbMenuModule,
-  NbSidebarModule,
-  NbToastrModule,
-  NbWindowModule,
-} from '@nebular/theme';
+import { NbChatModule, NbDatepickerModule, NbDialogModule, NbMenuModule, NbSidebarModule, NbToastrModule, NbWindowModule } from '@nebular/theme';
 import { HttpInterceptorService } from './http-interceptor.service';
-import {NbAuthService} from '@nebular/auth';
-import {AuthGuard} from './auth-guard.service';
-import {LoggingInterceptorService} from './logging-interceptor.service';
+import { NbAuthService } from '@nebular/auth';
+import { AuthGuard } from './auth-guard.service';
+import { LoggingInterceptorService } from './logging-interceptor.service';
+import { IgxFinancialChartModule, IgxLegendModule } from 'igniteui-angular-charts';
 
-
+// I keep the new line
 @NgModule({
   declarations: [AppComponent],
   providers: [
@@ -47,6 +40,8 @@ import {LoggingInterceptorService} from './logging-interceptor.service';
     BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
+    IgxFinancialChartModule,
+    IgxLegendModule,
     NbSidebarModule.forRoot(),
     NbMenuModule.forRoot(),
     NbDatepickerModule.forRoot(),
