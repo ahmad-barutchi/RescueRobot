@@ -4,6 +4,7 @@ from pymongo import MongoClient
 import serial
 import time
 from flask_cors import CORS, cross_origin
+from datetime import datetime
 
 device = 'COM3'  # this will have to be changed to the serial port you are using
 try:
@@ -13,7 +14,7 @@ except:
     print("Failed to connect on", device)
 
 try:
-    conn = MongoClient("localhost", 1156)
+    conn = MongoClient("localhost", 30709)
     print("Connected successfully to mongoDB!!!")
 except:
     print("Could not connect to MongoDB")
@@ -24,6 +25,15 @@ db = conn.RobotData
 # Created or Switched to collection names: my_gfg_collection
 collection = db.Data
 frame = {}
+tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+year = tm[0:4]
+month = tm[5:7]
+date = tm[8:10]
+hour = tm[11:13]
+minutes = tm[14:16]
+seconds = tm[17:19]
+print(tm)
+print(year, month, date, hour, minutes, seconds)
 
 try:
     for x in range(3):
@@ -33,7 +43,14 @@ try:
         data = data.decode('ascii')
         pieces = data.split(" ")  # split the data by the space
         print(pieces)
+
         frame = {
+            "year": year,
+            "month": month,
+            "date": date,
+            "hour": hour,
+            "minutes": minutes,
+            "secondes": seconds,
             "temp": pieces[0],
             "temp2": pieces[1],
             "humidity": pieces[2],
@@ -55,7 +72,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, resources={r"/get-temp": {"origins": "http://localhost:5000"}})
 
 
-@cross_origin(origin='http://localhost:*',headers=['Access-Control-Allow-Origin', 'Access-Control-Allow-Headers', 'Accept', 'Accept-Language', 'X-Authorization'])
+@cross_origin(origin='http://localhost:*', headers=['Access-Control-Allow-Origin', 'Access-Control-Allow-Headers', 'Accept', 'Accept-Language', 'X-Authorization'])
 @app.route("/get-temp", methods=['GET'])
 def get_temp():
     cursor = collection.find()
@@ -68,6 +85,7 @@ def get_temp():
         valeur.append(record["human"])
         valeur.append(record["fire"])
     i = 0
+    count = 0
     y = len(valeur)
     y /= 6
     y = int(y)
@@ -76,15 +94,22 @@ def get_temp():
     presets = {}
     for x in y:
         preset = {
-            "temp": valeur[i + 0],
-            "temp2": valeur[i + 1],
+            "year": year,
+            "month": month,
+            "date": date,
+            "hour": hour,
+            "minutes": minutes,
+            "secondes": seconds,
+            "temp": float(valeur[i + 0]),
+            "temp2": float(valeur[i + 1]),
             "humidity": valeur[i + 2],
             "pos": valeur[i + 3],
             "human": valeur[i + 4],
             "fire": valeur[i + 5]
         }
-        presets[i] = preset
-        i += 1
+        presets[count] = preset
+        i += 6
+        count += 1
     print("presets")
     print(presets)
     response = flask.jsonify(presets)

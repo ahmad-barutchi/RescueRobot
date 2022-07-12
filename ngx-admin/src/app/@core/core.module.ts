@@ -54,7 +54,6 @@ import { SecurityCamerasService } from './mock/security-cameras.service';
 import { MockDataModule } from './mock/mock-data.module';
 import {Setting} from '../setting';
 
-
 const socialLinks = [
   {
     url: 'https://github.com/akveo/nebular',
