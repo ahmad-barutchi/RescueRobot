@@ -171,8 +171,12 @@ export const MENU_ITEMS: NbMenuItem[] = [
     icon: 'pie-chart-outline',
     children: [
       {
-        title: 'IgniteUi',
+        title: 'Temperatures et humidité',
         link: '/pages/charts/igniteUi',
+      },
+      {
+        title: 'Etat et monitoring',
+        link: '/pages/charts/monitoring',
       },
       {
         title: 'Echarts',
