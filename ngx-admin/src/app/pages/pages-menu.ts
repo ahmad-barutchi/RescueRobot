@@ -167,7 +167,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
     ],
   },
   {
-    title: 'Charts',
+    title: 'Robot data',
     icon: 'pie-chart-outline',
     children: [
       {

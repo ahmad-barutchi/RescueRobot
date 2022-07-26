@@ -11,7 +11,7 @@ except:
     print("Failed to connect on", device)
 
 try:
-    conn = MongoClient("localhost", 11465)
+    conn = MongoClient("localhost", 50873)
     print("Connected successfully to mongoDB!!!")
 except:
     print("Could not connect to MongoDB")
@@ -20,7 +20,11 @@ except:
 db = conn.RobotData
 
 # Created or Switched to collection names: my_gfg_collection
-collection = db.Data
+
+collection = db.collection_names(include_system_collections=False)
+print(collection)
+print(max(collection))
+collection = db.Seance6
 frame = {}
 year = 0
 month = 0
@@ -30,7 +34,7 @@ minutes = 0
 seconds = 0
 
 try:
-    for x in range(9):
+    for x in range(25):
         time.sleep(1)
         data = arduino.readline()  # read the data from the arduino
         data = data[0:-2]

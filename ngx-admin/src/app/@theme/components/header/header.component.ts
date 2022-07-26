@@ -5,6 +5,8 @@ import { UserData } from '../../../@core/data/users';
 import { LayoutService } from '../../../@core/utils';
 import { map, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'ngx-header',
@@ -16,6 +18,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
   userPictureOnly: boolean = false;
   user: any;
+  sessions_id: Array<string> = [];
 
   themes = [
     {
@@ -39,16 +42,41 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentTheme = 'default';
 
   userMenu = [ { title: 'Profile' }, { title: 'Log out' } ];
+  currentSession;
+
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
               private themeService: NbThemeService,
               private userService: UserData,
               private layoutService: LayoutService,
-              private breakpointService: NbMediaBreakpointsService) {
+              private breakpointService: NbMediaBreakpointsService,
+              private httpClient: HttpClient,
+              private router: Router) {
+  }
+
+  getSessions() {
+    this.httpClient.get<any>('http://localhost:5000/all-sessions').subscribe(
+      sessions_id => {
+        const session = JSON.parse(localStorage.getItem("session"));
+        this.sessions_id = sessions_id;
+      });
+    console.log("sessions_id: ", this.sessions_id);
+  }
+
+  changeSession(session_id: any) {
+    localStorage.setItem("session", JSON.stringify(session_id));
+    this.httpClient.get<any>('http://localhost:5000/get-seance/' + session_id).subscribe(
+      temps => {
+        console.log(temps);
+        localStorage.setItem("datas", JSON.stringify(temps));
+      });
   }
 
   ngOnInit() {
+    const session = JSON.parse(localStorage.getItem("session"));
+    this.currentSession = session;
+    this.getSessions();
     this.currentTheme = this.themeService.currentTheme;
 
     this.userService.getUsers()

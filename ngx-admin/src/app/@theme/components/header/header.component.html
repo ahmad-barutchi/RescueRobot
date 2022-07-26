@@ -3,10 +3,16 @@
     <a (click)="toggleSidebar()" href="#" class="sidebar-toggle">
       <nb-icon icon="menu-2-outline"></nb-icon>
     </a>
-    <a class="logo" href="#" (click)="navigateHome()"><small>Snake Robot</small></a>
+    <a class="logo" href="#" (click)="navigateHome()"><small><b>Snake Robot</b></small></a>
   </div>
   <nb-select [selected]="currentTheme" (selectedChange)="changeTheme($event)" status="primary">
     <nb-option *ngFor="let theme of themes" [value]="theme.value"> {{ theme.name }}</nb-option>
+  </nb-select>
+</div>
+
+<div class="header-container">
+  <nb-select placeholder="choisir une séance" [selected]="currentSession" (selectedChange)="changeSession($event)" status="primary">
+    <nb-option *ngFor="let session of sessions_id" [value]="session"> {{ session }}</nb-option>
   </nb-select>
 </div>
 

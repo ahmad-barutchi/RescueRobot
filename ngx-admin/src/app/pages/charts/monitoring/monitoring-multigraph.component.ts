@@ -13,7 +13,7 @@ import { RobotDataService } from "./RobotDataService";
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ RobotDataService ],
   selector: "ngx-app-root",
-  styleUrls: ["./app.component.scss"],
+  styleUrls: ["./monitoring.component.scss"],
   templateUrl: "./monitoring.component.html",
 })
 
