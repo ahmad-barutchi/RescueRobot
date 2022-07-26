@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, OnInit} from "@angular/core";
 import { RobotDataService } from "./RobotDataService";
 import { HttpClient } from "@angular/common/http";
+import {Router} from "@angular/router";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -10,7 +11,7 @@ import { HttpClient } from "@angular/common/http";
   templateUrl: "./igniteUi.component.html",
 })
 
-export class IgniteuiMultigraphComponent {
+export class IgniteuiMultigraphComponent implements OnInit{
   public data: any;
   public allData: any;
   public result: Array<any> = [];
@@ -31,12 +32,23 @@ export class IgniteuiMultigraphComponent {
   public human: number;
   public fire: number;
   public max: number;
-  constructor(private dataService: RobotDataService, private httpClient: HttpClient) {
+  public session: string = "Seance1";
+  constructor(private dataService: RobotDataService, private httpClient: HttpClient, private router: Router) {
     this.data = [ this.getTemp(),  this.getTemp2(), this.getHumidity(), this.getFire(), this.getHuman()];
+  }
+  ngOnInit() {
+    // this.reloadComponent();
+  }
+  reloadComponent() {
+    const currentUrl = this.router.url;
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = 'reload';
+    this.router.navigate([currentUrl]);
   }
 
   public getTemp(): any[] {
-    this.httpClient.get<any>('http://localhost:5000/get-seance/seance3').subscribe(
+    this.session = JSON.parse(localStorage.getItem("session"));
+    this.httpClient.get<any>('http://localhost:5000/get-seance/' + this.session).subscribe(
       temps => {
         console.log(temps);
         localStorage.setItem("datas", JSON.stringify(temps));
@@ -90,7 +102,7 @@ export class IgniteuiMultigraphComponent {
       if (data[x]['human'] === 'y') {
         this.human = 50;
       } else {
-        this.human = 0;
+        this.human = 10;
       }
       this.bean4 = { time: new Date(data[x]['year'], data[x]['month'], data[x]['date'], data[x]['hour'], data[x]['minutes'], data[x]['seconds']), open: this.human, high: 268.93, low: 262.80, close: this.human, volume: 6118146 };
       this.result4.push(this.bean4);
@@ -110,7 +122,7 @@ export class IgniteuiMultigraphComponent {
       if (data[x]['fire'] === 'y') {
         this.fire = 50;
       } else {
-        this.fire = 0;
+        this.fire = 10;
       }
       this.bean5 = { time: new Date(data[x]['year'], data[x]['month'], data[x]['date'], data[x]['hour'], data[x]['minutes'], data[x]['seconds']), open: this.fire, high: 268.93, low: 262.80, close: this.fire, volume: 6118146 };
       this.result5.push(this.bean5);
@@ -124,7 +136,7 @@ export class IgniteuiMultigraphComponent {
   }
 
   public getTemps() {
-    this.httpClient.get<any>('http://localhost:5000/get-temp',
+    this.httpClient.get<any>('http://localhost:5000/get-seance/Seance1',
     ).subscribe(
       temps => {
         console.log(temps);
@@ -132,7 +144,7 @@ export class IgniteuiMultigraphComponent {
   }
 
   public getData(): any {
-    this.httpClient.get<any>('http://localhost:5000/get-temp',
+    this.httpClient.get<any>('http://localhost:5000/get-seance/Seance1',
     ).subscribe(
       temps => {
         console.log(temps);

@@ -28,14 +28,12 @@ if not collection:
 else:
     for col in collection:
         col = col[6:]
-        collections.append(col)
+        collections.append(int(col))
     print(collections)
-print(max(collections))
 next = int(max(collections)) + 1
-print("next: ", next)
 next = str(next)
 coll = "Seance" + next
-print("coll: ", coll)
+print("collection on MongoDB: ", coll)
 
 collection_db = db[coll]
 frame = {}
@@ -47,13 +45,20 @@ minutes = 0
 seconds = 0
 
 try:
-    for x in range(40):
+    for x in range(30):
         time.sleep(1)
         data = arduino.readline()  # read the data from the arduino
         data = data[0:-2]
         data = data.decode('ascii')
         pieces = data.split(" ")  # split the data by the space
+        print(len(pieces))
         print(pieces)
+        if None in pieces or len(pieces) < 6:
+            print("corrupted data!!!!!!!!")
+            break
+        for piece in pieces:
+            if piece == '':
+                break
 
         tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         year = tm[0:4]

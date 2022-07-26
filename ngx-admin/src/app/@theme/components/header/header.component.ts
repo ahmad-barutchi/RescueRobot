@@ -44,7 +44,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userMenu = [ { title: 'Profile' }, { title: 'Log out' } ];
   currentSession;
 
-
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
               private themeService: NbThemeService,
@@ -58,7 +57,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   getSessions() {
     this.httpClient.get<any>('http://localhost:5000/all-sessions').subscribe(
       sessions_id => {
-        const session = JSON.parse(localStorage.getItem("session"));
         this.sessions_id = sessions_id;
       });
     console.log("sessions_id: ", this.sessions_id);
@@ -66,17 +64,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   changeSession(session_id: any) {
     localStorage.setItem("session", JSON.stringify(session_id));
-    this.httpClient.get<any>('http://localhost:5000/get-seance/' + session_id).subscribe(
-      temps => {
-        console.log(temps);
-        localStorage.setItem("datas", JSON.stringify(temps));
-      });
+    this.reloadComponent();
+  }
+
+  reloadComponent() {
+    const currentUrl = this.router.url;
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = 'reload';
+    this.router.navigate([currentUrl]);
   }
 
   ngOnInit() {
+    this.getSessions();
     const session = JSON.parse(localStorage.getItem("session"));
     this.currentSession = session;
-    this.getSessions();
     this.currentTheme = this.themeService.currentTheme;
 
     this.userService.getUsers()
