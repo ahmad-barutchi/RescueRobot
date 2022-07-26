@@ -3,7 +3,7 @@ from flask import Flask
 from pymongo import MongoClient
 
 try:
-    conn = MongoClient("localhost", 50873)
+    conn = MongoClient("localhost", 27017)
     print("Connected successfully to mongoDB!!!")
 except:
     print("Could not connect to MongoDB")
@@ -12,7 +12,7 @@ except:
 db = conn.RobotData
 
 # Created or Switched to collection names: my_gfg_collection
-collection = db.Data
+collection = db.Seance3
 
 app = Flask(__name__)
 

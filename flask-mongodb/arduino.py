@@ -11,7 +11,7 @@ except:
     print("Failed to connect on", device)
 
 try:
-    conn = MongoClient("localhost", 50873)
+    conn = MongoClient("localhost", 27017)
     print("Connected successfully to mongoDB!!!")
 except:
     print("Could not connect to MongoDB")
@@ -20,11 +20,24 @@ except:
 db = conn.RobotData
 
 # Created or Switched to collection names: my_gfg_collection
-
+collections = []
 collection = db.collection_names(include_system_collections=False)
-print(collection)
-print(max(collection))
-collection = db.Seance6
+if not collection:
+    mycol = db["Seance1"]
+    print("Seance1 created")
+else:
+    for col in collection:
+        col = col[6:]
+        collections.append(col)
+    print(collections)
+print(max(collections))
+next = int(max(collections)) + 1
+print("next: ", next)
+next = str(next)
+coll = "Seance" + next
+print("coll: ", coll)
+
+collection_db = db[coll]
 frame = {}
 year = 0
 month = 0
@@ -34,7 +47,7 @@ minutes = 0
 seconds = 0
 
 try:
-    for x in range(25):
+    for x in range(40):
         time.sleep(1)
         data = arduino.readline()  # read the data from the arduino
         data = data[0:-2]
@@ -68,7 +81,7 @@ try:
         }
         # Here we are going to insert the data into the Database
         try:
-            rec = collection.insert_one(frame)
+            rec = collection_db.insert_one(frame)
         except Exception as e:
             print("An exception occurred ::", e)
 except:

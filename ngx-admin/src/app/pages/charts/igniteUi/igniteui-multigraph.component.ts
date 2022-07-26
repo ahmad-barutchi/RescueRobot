@@ -36,7 +36,7 @@ export class IgniteuiMultigraphComponent {
   }
 
   public getTemp(): any[] {
-    this.httpClient.get<any>('http://localhost:5000/get-temp').subscribe(
+    this.httpClient.get<any>('http://localhost:5000/get-seance/seance3').subscribe(
       temps => {
         console.log(temps);
         localStorage.setItem("datas", JSON.stringify(temps));
