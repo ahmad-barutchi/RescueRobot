@@ -2,6 +2,36 @@ import { NbMenuItem } from '@nebular/theme';
 
 export const MENU_ITEMS: NbMenuItem[] = [
   {
+    title: 'Robot data',
+    icon: 'pie-chart-outline',
+    children: [
+      {
+        title: 'Temperatures et humidité',
+        link: '/pages/charts/igniteUi',
+      },
+      {
+        title: 'Etat et monitoring',
+        link: '/pages/charts/monitoring',
+      },
+      {
+        title: 'Gestion des séances',
+        link: '/pages/sessions',
+      },
+      {
+        title: 'Echarts',
+        link: '/pages/charts/echarts',
+      },
+      {
+        title: 'Charts.js',
+        link: '/pages/charts/chartjs',
+      },
+      {
+        title: 'D3',
+        link: '/pages/charts/d3',
+      },
+    ],
+  },
+  {
     title: 'E-commerce',
     icon: 'shopping-cart-outline',
     link: '/pages/dashboard',
@@ -163,32 +193,6 @@ export const MENU_ITEMS: NbMenuItem[] = [
       {
         title: 'Search Maps',
         link: '/pages/maps/searchmap',
-      },
-    ],
-  },
-  {
-    title: 'Robot data',
-    icon: 'pie-chart-outline',
-    children: [
-      {
-        title: 'Temperatures et humidité',
-        link: '/pages/charts/igniteUi',
-      },
-      {
-        title: 'Etat et monitoring',
-        link: '/pages/charts/monitoring',
-      },
-      {
-        title: 'Echarts',
-        link: '/pages/charts/echarts',
-      },
-      {
-        title: 'Charts.js',
-        link: '/pages/charts/chartjs',
-      },
-      {
-        title: 'D3',
-        link: '/pages/charts/d3',
       },
     ],
   },

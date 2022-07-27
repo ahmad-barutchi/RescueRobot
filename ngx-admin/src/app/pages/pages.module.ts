@@ -7,6 +7,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { ECommerceModule } from './e-commerce/e-commerce.module';
 import { PagesRoutingModule } from './pages-routing.module';
 import { MiscellaneousModule } from './miscellaneous/miscellaneous.module';
+import { CommonModule } from '@angular/common';
+import { SessionModule } from "./sessions/session.module";
 
 @NgModule({
   imports: [
@@ -16,6 +18,8 @@ import { MiscellaneousModule } from './miscellaneous/miscellaneous.module';
     DashboardModule,
     ECommerceModule,
     MiscellaneousModule,
+    CommonModule,
+    SessionModule,
   ],
   declarations: [
     PagesComponent,

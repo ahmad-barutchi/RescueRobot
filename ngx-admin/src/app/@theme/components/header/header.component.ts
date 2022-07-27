@@ -59,7 +59,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       sessions_id => {
         this.sessions_id = sessions_id;
       });
-    console.log("sessions_id: ", this.sessions_id);
   }
 
   changeSession(session_id: any) {

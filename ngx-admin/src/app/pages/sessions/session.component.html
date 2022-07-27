@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>
+        Gestion des séances:
+      </nb-card-header>
+      <nb-card-body>
+        <div class="row show-grid">
+          <div class="col-md-2" *ngFor="let session of sessions">
+            <div >
+              <button type="submit" nbButton status="info" href="/pages/charts/igniteUi" (click)="changeSession(session)">{{session}}</button>
+              <p class="col-md-1"> </p>
+            </div>
+          </div>
+        </div>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>
