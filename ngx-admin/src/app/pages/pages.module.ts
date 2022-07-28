@@ -9,6 +9,8 @@ import { PagesRoutingModule } from './pages-routing.module';
 import { MiscellaneousModule } from './miscellaneous/miscellaneous.module';
 import { CommonModule } from '@angular/common';
 import { SessionModule } from "./sessions/session.module";
+import { SessionInfoModule } from "./session-info/session-info.module";
+import { SessionsManModule } from "./sessions-man/sessions-man.module";
 
 @NgModule({
   imports: [
@@ -20,6 +22,8 @@ import { SessionModule } from "./sessions/session.module";
     MiscellaneousModule,
     CommonModule,
     SessionModule,
+    SessionInfoModule,
+    SessionsManModule,
   ],
   declarations: [
     PagesComponent,

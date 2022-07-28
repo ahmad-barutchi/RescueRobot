@@ -22,7 +22,7 @@ export class SessionComponent implements OnInit {
   }
 
   changeSession(session_id: any) {
-    this.router.navigate(["/page"]);
+    this.router.navigate(["/pages/session-info"]);
   }
 
   getSessions() {
@@ -32,7 +32,5 @@ export class SessionComponent implements OnInit {
       });
     this.sessions = JSON.parse(localStorage.getItem("sessions"));
     console.log("sessions: ", this.sessions);
-
-
   }
 }

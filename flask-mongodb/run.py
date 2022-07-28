@@ -1,5 +1,5 @@
 import flask
-from flask import Flask
+from flask import Flask, render_template
 from pymongo import MongoClient
 
 try:
@@ -63,20 +63,31 @@ def get_seance(seance_id):
     return response
 
 
+@app.route("/del-seance/<seance_id>", methods=['POST'])
+def del_seance(seance_id):
+    collection = db[seance_id]
+    collection.drop()
+    return "Deleted!", 200
+
+
+@app.route("/mod-seance/<seance_id>/<new_seance_id>", methods=['POST'])
+def mod_seance(seance_id, new_seance_id):
+    collection = db[seance_id]
+    collection.rename(new_seance_id)
+    return "Modified!", 200
+
+
 @app.route("/all-sessions", methods=['GET'])
 def all_sessions():
     collections_sorted = []
     collections = []
     collection = db.collection_names(include_system_collections=False)
-    print(collection)
     for col in collection:
         col = col[6:]
         collections.append(int(col))
     collections.sort()
-    print("collections: ", collections)
     for col in collections:
         collections_sorted.append("Seance" + str(col))
-    print("collections_sorted: ", collections_sorted)
     response = flask.jsonify(collections_sorted)
     return response
 

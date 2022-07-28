@@ -26,8 +26,12 @@ export class IgniteuiMultigraphComponent implements OnInit {
   constructor(private dataService: RobotDataService, private httpClient: HttpClient, private router: Router) {
   }
   ngOnInit() {
+    this.session = JSON.parse(localStorage.getItem("session"));
+    this.httpClient.get<any>('http://localhost:5000/get-seance/' + this.session).subscribe(
+      temps => {
+        localStorage.setItem("datas", JSON.stringify(temps));
+      });
     // this.reloadComponent();
-    // setInterval(console.log("coucou"), 1000);
     this.data = [ this.getTemp(),  this.getTemp2(), this.getHumidity(), this.getFire(), this.getHuman()];
   }
   reloadComponent() {
@@ -36,13 +40,7 @@ export class IgniteuiMultigraphComponent implements OnInit {
         window.location.reload();
       });
   }
-
   public getTemp(): any[] {
-    this.session = JSON.parse(localStorage.getItem("session"));
-    this.httpClient.get<any>('http://localhost:5000/get-seance/' + this.session).subscribe(
-      temps => {
-        localStorage.setItem("datas", JSON.stringify(temps));
-      });
     const data = JSON.parse(localStorage.getItem("datas"));
     this.max = Object.keys(data).length;
     for (let x = 0; x < this.max; x++) {

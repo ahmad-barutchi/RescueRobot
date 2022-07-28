@@ -12,6 +12,7 @@ import { Component } from '@angular/core';
       <a href="#" target="_blank" class="ion ion-social-facebook"></a>
       <a href="#" target="_blank" class="ion ion-social-twitter"></a>
       <a href="#" target="_blank" class="ion ion-social-linkedin"></a>
+      <a href="https://satav7000.atlassian.net/jira/software/projects/SR/boards/1" target="_blank" class="ion ion-navicon-round ng-star-inserted"></a>
     </div>
   `,
 })

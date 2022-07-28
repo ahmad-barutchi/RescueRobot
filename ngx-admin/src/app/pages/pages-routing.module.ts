@@ -6,6 +6,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ECommerceComponent } from './e-commerce/e-commerce.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
 import {SessionComponent} from "./sessions/session.component";
+import {SessionInfoComponent} from "./session-info/session-info.component";
+import {SessionsManComponent} from "./sessions-man/sessions-man.component";
 
 const routes: Routes = [{
   path: '',
@@ -14,6 +16,14 @@ const routes: Routes = [{
     {
       path: 'sessions',
       component: SessionComponent,
+    },
+    {
+      path: 'session-info',
+      component: SessionInfoComponent,
+    },
+    {
+      path: 'sessions-man',
+      component: SessionsManComponent,
     },
     {
       path: 'dashboard',

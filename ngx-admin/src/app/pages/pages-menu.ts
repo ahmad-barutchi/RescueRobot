@@ -14,8 +14,16 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/pages/charts/monitoring',
       },
       {
-        title: 'Gestion des séances',
+        title: 'Infos des séances',
         link: '/pages/sessions',
+      },
+      {
+        title: 'Infos des séances2',
+        link: '/pages/session-info',
+      },
+      {
+        title: 'Gestion des séances',
+        link: '/pages/sessions-man',
       },
       {
         title: 'Echarts',
