@@ -45,7 +45,7 @@ minutes = 0
 seconds = 0
 
 try:
-    for x in range(250):
+    for x in range(350):
         time.sleep(1)
         data = arduino.readline()  # read the data from the arduino
         data = data[0:-2]

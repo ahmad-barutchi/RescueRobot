@@ -92,7 +92,7 @@ export class SessionsManComponent implements OnInit {
   onDeleteConfirm(event): void {
     if (window.confirm('Are you sure you want to delete ' + event['data']['name'] + '?')) {
       event.confirm.resolve();
-      this.httpClient.post<any>('http://localhost:5000/del-seance/' + event['data']['name'], { title: 'Session deleted' }).subscribe(
+      this.httpClient.delete<any>('http://localhost:5000/del-seance/' + event['data']['name']).subscribe(
         temps => {
           this.bean = { time: new Date(temps[0]['year'], temps[0]['month'], temps[0]['date'], temps[0]['hour'], temps[0]['minutes'], temps[0]['seconds'])};
           localStorage.setItem("date", JSON.stringify(this.bean['time']));

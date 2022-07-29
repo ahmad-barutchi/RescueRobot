@@ -18,6 +18,10 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/pages/sessions',
       },
       {
+        title: 'tableau séance',
+        link: '/pages/session-info',
+      },
+      {
         title: 'Gestion des séances',
         link: '/pages/sessions-man',
       },

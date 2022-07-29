@@ -63,7 +63,7 @@ def get_seance(seance_id):
     return response
 
 
-@app.route("/del-seance/<seance_id>", methods=['POST'])
+@app.route("/del-seance/<seance_id>", methods=['DELETE'])
 def del_seance(seance_id):
     collection = db[seance_id]
     collection.drop()
