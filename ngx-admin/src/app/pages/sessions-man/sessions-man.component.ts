@@ -3,7 +3,7 @@ import { LocalDataSource } from 'ng2-smart-table';
 import {HttpClient} from "@angular/common/http";
 import {Router} from "@angular/router";
 
-export class TableData {
+export class SessionsData {
   name: string;
   start: any;
 }
@@ -17,9 +17,9 @@ export class SessionsManComponent implements OnInit {
 
   public sessions: Array<any> = JSON.parse(localStorage.getItem("sessions"));
   public date: {} = JSON.parse(localStorage.getItem("date"));
-  public datas: Array<any> = JSON.parse(localStorage.getItem("datas"));
+  // public datas: Array<any> = JSON.parse(localStorage.getItem("datas"));
   public items: Array<any> = [];
-  public data: Array<TableData> = [];
+  public data: Array<SessionsData> = [];
   public bean: {};
   public str: string;
   public max: any;
@@ -58,23 +58,18 @@ export class SessionsManComponent implements OnInit {
 
   constructor(private httpClient: HttpClient, private router: Router) {
     for (const session of this.sessions) {
-      const currentTableData = new TableData();
+      const currentTableData = new SessionsData();
       this.httpClient.get<any>('http://localhost:5000/get-seance/' + session).subscribe(
         temps => {
           this.bean = { time: new Date(temps[0]['year'], temps[0]['month'], temps[0]['date'], temps[0]['hour'], temps[0]['minutes'], temps[0]['seconds'])};
           this.str = this.bean['time'].toString();
-          console.log('str: ', this.str);
-          this.str = this.str.replace("T", " ");
           this.date = this.str;
-          console.log('date: ', this.str);
           currentTableData.start = this.date;
         });
       currentTableData.name = session;
       this.data.push(currentTableData);
     }
-    console.log("Session man: ", this.data);
     this.source.load(this.data);
-    this.source.append(" ");
   }
 
   ngOnInit() {
@@ -92,7 +87,6 @@ export class SessionsManComponent implements OnInit {
         localStorage.setItem("sessions", JSON.stringify(sessions));
       });
     this.sessions = JSON.parse(localStorage.getItem("sessions"));
-    console.log("sessions: ", this.sessions);
   }
 
   onDeleteConfirm(event): void {
@@ -109,7 +103,6 @@ export class SessionsManComponent implements OnInit {
   }
 
   onEditConfirm(event): void {
-    console.log("Edit: ", event['data']['name']);
     if (window.confirm('Are you sure you want to edit ' + event['data']['name'] + '\'s name to ' + event['newData']['name'] + '?')) {
       event.confirm.resolve();
       this.httpClient.post<any>('http://localhost:5000/mod-seance/' + event['data']['name'] + '/' + event['newData']['name'], { title: 'Session deleted' }).subscribe(

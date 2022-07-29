@@ -2,6 +2,15 @@ import { Component } from '@angular/core';
 import { LocalDataSource } from 'ng2-smart-table';
 
 import { SmartTableData } from '../../@core/data/smart-table';
+import {HttpClient} from "@angular/common/http";
+
+export class SessionData {
+  date: string;
+  pos: string;
+  temp: number;
+  temp2: number;
+  humidity: number;
+}
 
 @Component({
   selector: 'ngx-smart-table',
@@ -26,38 +35,60 @@ export class SessionInfoComponent {
       confirmDelete: true,
     },
     columns: {
-      id: {
-        title: 'ID',
-        type: 'number',
+      date: {
+        title: 'date',
+        type: 'any',
       },
-      firstName: {
-        title: 'First Name',
+      pos: {
+        title: 'Position',
         type: 'string',
       },
-      lastName: {
-        title: 'Last Name',
+      temp: {
+        title: 'Temperature',
         type: 'string',
       },
-      username: {
-        title: 'Username',
+      temp2: {
+        title: 'Temperature arrière',
         type: 'string',
       },
-      email: {
-        title: 'E-mail',
-        type: 'string',
-      },
-      age: {
-        title: 'Age',
+      humidity: {
+        title: 'Humidité',
         type: 'number',
       },
     },
   };
 
   source: LocalDataSource = new LocalDataSource();
+  public session: string = "Seance1";
+  public data: Array<SessionData> = [];
+  public bean: {};
+  public str: string;
+  public date: {} = JSON.parse(localStorage.getItem("date"));
+  public max: number;
 
-  constructor(private service: SmartTableData) {
-    const data = this.service.getData();
-    this.source.load(data);
+  constructor(private service: SmartTableData, private httpClient: HttpClient) {
+    this.session = JSON.parse(localStorage.getItem("session"));
+    this.httpClient.get<any>('http://localhost:5000/get-seance/' + this.session).subscribe(
+      temps => {
+        localStorage.setItem("datas", JSON.stringify(temps));
+      });
+    const datas: Array<any> = JSON.parse(localStorage.getItem("datas"));
+    console.log('datas', datas);
+    this.max = Object.keys(datas).length;
+    for (let x = 0; x < this.max; x++) {
+      const currentSessionData = new SessionData();
+      if (datas[x]['human'] === 'y') {
+        currentSessionData.date = (datas[x]['year'] + '-' + datas[x]['month'] + '-' + datas[x]['date'] + ' ' + datas[x]['hour'] + ':' + datas[x]['minutes'] + ':' + datas[x]['seconds']);
+        currentSessionData.pos = datas[x]['pos'];
+        currentSessionData.temp = datas[x]['temp'];
+        currentSessionData.temp2 = datas[x]['temp2'];
+        currentSessionData.humidity = datas[x]['humidity'];
+        this.data.push(currentSessionData);
+      }
+      console.log('currentSessionData: ', currentSessionData);
+      console.log('this data: ', this.data);
+    }
+    this.source.load(this.data);
   }
 
   onDeleteConfirm(event): void {
