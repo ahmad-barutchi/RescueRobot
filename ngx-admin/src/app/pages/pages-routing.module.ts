@@ -8,6 +8,7 @@ import { NotFoundComponent } from './miscellaneous/not-found/not-found.component
 import {SessionComponent} from "./sessions/session.component";
 import {SessionInfoComponent} from "./session-info/session-info.component";
 import {SessionsManComponent} from "./sessions-man/sessions-man.component";
+import {ProfileComponent} from "./profile/profile.component";
 
 const routes: Routes = [{
   path: '',
@@ -24,6 +25,10 @@ const routes: Routes = [{
     {
       path: 'sessions-man',
       component: SessionsManComponent,
+    },
+    {
+      path: 'profile',
+      component: ProfileComponent,
     },
     {
       path: 'dashboard',

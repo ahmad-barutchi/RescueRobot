@@ -1,3 +1,8 @@
+/**
+ * @license
+ * Copyright Akveo. All Rights Reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ */
 import { NgModule } from '@angular/core';
 import { NbMenuModule } from '@nebular/theme';
 
@@ -11,6 +16,7 @@ import { CommonModule } from '@angular/common';
 import { SessionModule } from "./sessions/session.module";
 import { SessionInfoModule } from "./session-info/session-info.module";
 import { SessionsManModule } from "./sessions-man/sessions-man.module";
+import {ProfileModule} from "./profile/profile.module";
 
 @NgModule({
   imports: [
@@ -24,6 +30,7 @@ import { SessionsManModule } from "./sessions-man/sessions-man.module";
     SessionModule,
     SessionInfoModule,
     SessionsManModule,
+    ProfileModule,
   ],
   declarations: [
     PagesComponent,

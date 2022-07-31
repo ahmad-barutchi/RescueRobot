@@ -1,22 +1,91 @@
 import flask
-from flask import Flask
+from flask import Flask, jsonify, request
 from pymongo import MongoClient
+from pymongo.errors import OperationFailure
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 
 try:
     conn = MongoClient("localhost", 27017)
     print("Connected successfully to mongoDB!!!")
-except:
+except OperationFailure as e:
     print("Could not connect to MongoDB")
 
-# database
-db = conn.RobotData
-collections = []
-collections_sorted = []
+
 app = Flask(__name__)
+jwt = JWTManager(app)
+
+# JWT Config
+app.config["JWT_SECRET_KEY"] = "AXenonON65T!lfe44deoJR"
+
+
+@app.route("/register", methods=["POST"])
+def register():
+    # database
+    db = conn.app_database
+    # collection
+    user = db["User"]
+    email = request.json['email']
+    admin = user.find_one()
+    role = "user"
+    if not admin:
+        role = "admin"
+    test = user.find_one({"email": email})
+    if test:
+        return jsonify(message="User Already Exist"), 409
+    else:
+        first_name = request.json["fullName"]
+        password = request.json["password"]
+        user_info = dict(first_name=first_name, email=email, role=role,
+                         password=generate_password_hash(password, method='sha256'))
+        user.insert_one(user_info)
+        return jsonify(message="User added sucessfully"), 201
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    bool_login = False
+    # database
+    db = conn.app_database
+    # collection
+    user = db["User"]
+    if request.is_json:
+        email = request.json["email"]
+        password = request.json["password"]
+    else:
+        email = request.json["email"]
+        password = request.json["password"]
+
+    test = user.find_one({"email": email})
+
+    if test:
+        bool_login = check_password_hash(test['password'], password)
+    if bool_login:
+        token = create_access_token(identity=email)
+        return jsonify(message="Login Succeeded!", token=token), 200
+    else:
+        return jsonify(message="Bad Email or Password"), 401
+
+
+@app.route("/account/<email>", methods=['GET'])
+def get_profile(email):
+    profile = {}
+    # database
+    db = conn.app_database
+    # collection
+    user = db["User"]
+    user_info = user.find_one({"email": email})
+    profile = {
+        "name": user_info['first_name'],
+        "email": user_info['email'],
+    }
+    response = flask.jsonify(profile)
+    return response
 
 
 @app.route("/get-seance/<seance_id>", methods=['GET'])
 def get_seance(seance_id):
+    db = conn.RobotData
     collection = db[seance_id]
     cursor = collection.find()
     valeur = []
@@ -65,6 +134,7 @@ def get_seance(seance_id):
 
 @app.route("/del-seance/<seance_id>", methods=['DELETE'])
 def del_seance(seance_id):
+    db = conn.RobotData
     collection = db[seance_id]
     collection.drop()
     return "Deleted!", 200
@@ -72,6 +142,7 @@ def del_seance(seance_id):
 
 @app.route("/mod-seance/<seance_id>/<new_seance_id>", methods=['POST'])
 def mod_seance(seance_id, new_seance_id):
+    db = conn.RobotData
     collection = db[seance_id]
     collection.rename(new_seance_id)
     return "Modified!", 200
@@ -79,6 +150,7 @@ def mod_seance(seance_id, new_seance_id):
 
 @app.route("/all-sessions", methods=['GET'])
 def all_sessions():
+    db = conn.RobotData
     collections_sorted = []
     collections = []
     collection = db.collection_names(include_system_collections=False)

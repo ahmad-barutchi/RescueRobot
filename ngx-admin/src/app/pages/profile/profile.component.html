@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col-lg-12">
+    <nb-card>
+      <nb-card-header>Gestion de profile: </nb-card-header>
+      <nb-card-body class="example-items-rows">
+        <p>Vous êtes connecter en tant que: {{profile['email']}}</p><br>
+        <div>
+          <label for="name">New name: </label><br>
+          <input nbInput placeholder="{{profile['name']}}" shape="semi-round" id="name" type="text" [formControl]="name">
+        </div><br>
+        <div class="full-name-inputs">
+          <label for="password">New password: </label><br>
+          <input nbInput shape="semi-round" id="password" type="password" [formControl]="password">
+        </div><br><br><br>
+        <button nbButton size="large" status="success" (click)="updateProfile()">Update Profile</button>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

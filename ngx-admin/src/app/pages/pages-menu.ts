@@ -26,6 +26,10 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/pages/sessions-man',
       },
       {
+        title: 'Gestion des profiles',
+        link: '/pages/profile',
+      },
+      {
         title: 'Echarts',
         link: '/pages/charts/echarts',
       },

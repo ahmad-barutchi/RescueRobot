@@ -7,6 +7,7 @@ import { map, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
+import {NbAuthJWTToken, NbAuthService} from "@nebular/auth";
 
 @Component({
   selector: 'ngx-header',
@@ -17,7 +18,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private destroy$: Subject<void> = new Subject<void>();
   userPictureOnly: boolean = false;
-  user: any;
+  user: {};
   sessions_id: Array<string> = [];
 
   themes = [
@@ -41,10 +42,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   currentTheme = 'default';
 
-  userMenu = [ { title: 'Profile' }, { title: 'Log out' } ];
+  userMenu = [ { title: 'Profile', link: '/pages/profile'}, { title: 'Log out', link: '/auth/login' } ];
   currentSession;
 
   constructor(private sidebarService: NbSidebarService,
+              private authService: NbAuthService,
               private menuService: NbMenuService,
               private themeService: NbThemeService,
               private userService: UserData,
@@ -52,6 +54,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
               private breakpointService: NbMediaBreakpointsService,
               private httpClient: HttpClient,
               private router: Router) {
+    console.log('user loading: ');
+    this.authService.onTokenChange()
+      .subscribe((token: NbAuthJWTToken) => {
+
+        if (token.isValid()) {
+          // here we receive a payload from the token and assigns it to our `user` variable
+          this.user = token.getPayload();
+        }
+      });
   }
 
   getSessions() {
@@ -82,11 +93,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const session = JSON.parse(localStorage.getItem("session"));
     this.currentSession = session;
     this.currentTheme = this.themeService.currentTheme;
-
-    this.userService.getUsers()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((users: any) => this.user = users.nick);
-
     const { xl } = this.breakpointService.getBreakpointsMap();
     this.themeService.onMediaQueryChange()
       .pipe(
