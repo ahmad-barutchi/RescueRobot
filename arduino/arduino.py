@@ -30,9 +30,9 @@ else:
         col = col[6:]
         collections.append(int(col))
     print(collections)
-next = int(max(collections)) + 1
-next = str(next)
-coll = "Seance" + next
+next_session = int(max(collections)) + 1
+next_session = str(next_session)
+coll = "Seance" + next_session
 print("collection on MongoDB: ", coll)
 
 collection_db = db[coll]
@@ -53,12 +53,9 @@ try:
         pieces = data.split(" ")  # split the data by the space
         print(len(pieces))
         print(pieces)
-        if None in pieces or len(pieces) < 6:
+        if (None or '') in pieces or len(pieces) < 6:
             print("corrupted data!!!!!!!!")
             break
-        for piece in pieces:
-            if piece == '':
-                break
 
         tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         year = tm[0:4]
@@ -67,7 +64,6 @@ try:
         hour = tm[11:13]
         minutes = tm[14:16]
         seconds = tm[17:19]
-        print(tm)
         print(year, month, date, hour, minutes, seconds)
 
         frame = {
