@@ -19,7 +19,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
   userPictureOnly: boolean = false;
   user: {};
-  sessions_id: Array<string> = [];
+  sessions: Array<string> = [];
 
   themes = [
     {
@@ -54,21 +54,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
               private breakpointService: NbMediaBreakpointsService,
               private httpClient: HttpClient,
               private router: Router) {
-    console.log('user loading: ');
     this.authService.onTokenChange()
       .subscribe((token: NbAuthJWTToken) => {
 
         if (token.isValid()) {
           // here we receive a payload from the token and assigns it to our `user` variable
           this.user = token.getPayload();
+          console.log((token));
         }
       });
   }
 
   getSessions() {
     this.httpClient.get<any>('http://localhost:5000/all-sessions').subscribe(
-      sessions_id => {
-        this.sessions_id = sessions_id;
+      sessions => {
+        this.sessions = sessions;
       });
   }
 

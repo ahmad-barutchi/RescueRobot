@@ -4,6 +4,13 @@ import {Setting} from '../../setting';
 import { NbAuthJWTToken, NbAuthService } from '@nebular/auth';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
+import { Injectable } from '@angular/core';
+import {ProfileService} from "./profile.service";
+
+let prof = {
+  "name": "doudou",
+  "email": "aaa@adadadada.dada",
+};
 
 @Component({
   selector: 'ngx-profile',
@@ -22,6 +29,7 @@ export class ProfileComponent implements OnInit {
   baseUrl = Setting.baseUrl;
 
   constructor(
+    private profileService: ProfileService,
     private fb: FormBuilder,
     private authService: NbAuthService,
     private httpClient: HttpClient,
@@ -36,6 +44,10 @@ export class ProfileComponent implements OnInit {
       });
   }
   ngOnInit(): void {
+    /* this.profileService.getProfiles().subscribe((res) => {
+      console.log("got profiles");
+      this.profile = res;
+    }); */
     this.getProfile();
   }
 

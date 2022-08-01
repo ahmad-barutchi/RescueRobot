@@ -13,10 +13,11 @@ except OperationFailure as e:
 
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 jwt = JWTManager(app)
 
 # JWT Config
-app.config["JWT_SECRET_KEY"] = "AXenonON65T!lfe44deoJR"
+app.config["JWT_SECRET_KEY"] = "AXenN65T!lfe44deoJR"
 
 
 @app.route("/register", methods=["POST"])
@@ -36,6 +37,7 @@ def register():
     else:
         first_name = request.json["fullName"]
         password = request.json["password"]
+        print(password)
         user_info = dict(first_name=first_name, email=email, role=role,
                          password=generate_password_hash(password, method='sha256'))
         user.insert_one(user_info)
@@ -83,51 +85,50 @@ def get_profile(email):
     return response
 
 
+@app.route("/accounts", methods=['GET'])
+def get_profiles():
+    profile = {}
+    profiles = []
+    # database
+    db = conn.app_database
+    # collection
+    user = db["User"]
+    users = user.find()
+    print(users)
+    for user_info in users:
+        profile = {
+            "name": user_info['first_name'],
+            "email": user_info['email'],
+        }
+        profiles.append(profile)
+
+    response = flask.jsonify(profiles)
+    return response
+
+
 @app.route("/get-seance/<seance_id>", methods=['GET'])
 def get_seance(seance_id):
     db = conn.RobotData
     collection = db[seance_id]
     cursor = collection.find()
-    valeur = []
-    for record in cursor:
-        valeur.append(record["temp"])
-        valeur.append(record["temp2"])
-        valeur.append(record["humidity"])
-        valeur.append(record["pos"])
-        valeur.append(record["human"])
-        valeur.append(record["fire"])
-        valeur.append(record["year"])
-        valeur.append(record["month"])
-        valeur.append(record["date"])
-        valeur.append(record["hour"])
-        valeur.append(record["minutes"])
-        valeur.append(record["seconds"])
-    i = 0
-    count = 0
-    items = len(valeur)
-    items /= 12
-    items = int(items)
-    items = range(0, items)
+    presets = []
 
-    presets = {}
-    for item in items:
+    for record in cursor:
         preset = {
-            "temp": float(valeur[i + 0]),
-            "temp2": float(valeur[i + 1]),
-            "humidity": float(valeur[i + 2]),
-            "pos": valeur[i + 3],
-            "human": valeur[i + 4],
-            "fire": valeur[i + 5],
-            "year": valeur[i + 6],
-            "month": valeur[i + 7],
-            "date": valeur[i + 8],
-            "hour": valeur[i + 9],
-            "minutes": valeur[i + 10],
-            "seconds": valeur[i + 11]
+            "temp": float(record["temp"]),
+            "temp2": float(record["temp2"]),
+            "humidity": float(record["humidity"]),
+            "pos": record["pos"],
+            "human": record["human"],
+            "fire": record["fire"],
+            "year": record["year"],
+            "month": record["month"],
+            "date": record["date"],
+            "hour": record["hour"],
+            "minutes": record["minutes"],
+            "seconds": record["seconds"]
         }
-        presets[count] = preset
-        i += 12
-        count += 1
+        presets.append(preset)
     response = flask.jsonify(presets)
     return response
 

@@ -12,7 +12,7 @@
 
 <div class="header-container">
   <nb-select placeholder="choisir une séance" [selected]="currentSession" (selectedChange)="changeSession($event)" status="primary">
-    <nb-option *ngFor="let session of sessions_id" [value]="session"> {{ session }}</nb-option>
+    <nb-option *ngFor="let session of sessions" [value]="session"> {{ session }}</nb-option>
   </nb-select>
 </div>
 
