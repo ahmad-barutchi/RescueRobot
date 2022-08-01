@@ -94,6 +94,14 @@ const DATA_SERVICES = [
   { provide: SecurityCamerasData, useClass: SecurityCamerasService },
 ];
 
+const formSetting: any = {
+  redirectDelay: 0,
+  showMessages: {
+    success: true,
+    error: true,
+  },
+};
+
 export class NbSimpleRoleProvider extends NbRoleProvider {
   getRole() {
     // here you could provide any role based on any auth flow
@@ -145,13 +153,27 @@ export const NB_CORE_PROVIDERS = [
       }),
     ],
     forms: {
-      baseEndpoint: baseUrl,
-
-      login: {
-        socialLinks: socialLinks,
+      login: formSetting,
+      register: formSetting,
+      requestPassword: formSetting,
+      resetPassword: formSetting,
+      logout: {
+        redirectDelay: 0,
       },
-      register: {
-        socialLinks: socialLinks,
+      validation: {
+        password: {
+          required: true,
+          minLength: 4,
+          maxLength: 50,
+        },
+        email: {
+          required: true,
+        },
+        fullName: {
+          required: false,
+          minLength: 2,
+          maxLength: 50,
+        },
       },
     },
   }).providers,

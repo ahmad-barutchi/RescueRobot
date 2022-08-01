@@ -1,4 +1,5 @@
 import flask
+import pymongo
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
@@ -41,7 +42,8 @@ def register():
         user_info = dict(first_name=first_name, email=email, role=role,
                          password=generate_password_hash(password, method='sha256'))
         user.insert_one(user_info)
-        return jsonify(message="User added sucessfully"), 201
+        token = create_access_token(identity=email)
+        return jsonify(message="User added sucessfully", token=token), 201
 
 
 @app.route("/login", methods=["POST"])
@@ -162,6 +164,39 @@ def all_sessions():
     for col in collections:
         collections_sorted.append("Seance" + str(col))
     response = flask.jsonify(collections_sorted)
+    return response
+
+
+@app.route("/all_sessions_table", methods=['GET'])
+def all_sessions_table():
+    db = conn.RobotData
+    collections_sorted = []
+    collections = []
+    collection = db.collection_names(include_system_collections=False)
+    for col in collection:
+        col = col[6:]
+        collections.append(int(col))
+    collections.sort()
+    for col in collections:
+        collections_sorted.append("Seance" + str(col))
+    presets = []
+    for col in collections_sorted:
+        collection = db[col]
+        start = collection.find_one()
+        end_cursor = collection.find()
+        end = {}
+        for end_cursor_item in end_cursor:
+            end = end_cursor_item
+        preset = {
+            "name": col,
+            "start": start["year"] + '/' + start["month"] + '/' + start["date"] + ' '
+            + start["hour"] + ':' + start["minutes"] + ':' + start["seconds"],
+            "end": end["year"] + '/' + end["month"] + '/' + end["date"] + ' '
+                     + end["hour"] + ':' + end["minutes"] + ':' + end["seconds"]
+        }
+        presets.append(preset)
+
+    response = flask.jsonify(presets)
     return response
 
 

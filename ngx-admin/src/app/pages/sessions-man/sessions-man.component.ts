@@ -2,10 +2,12 @@ import {Component, OnInit} from '@angular/core';
 import { LocalDataSource } from 'ng2-smart-table';
 import {HttpClient} from "@angular/common/http";
 import {Router} from "@angular/router";
+import {Observable, Subscription} from "rxjs";
 
 export class SessionsData {
   name: string;
-  start: any;
+  start: string;
+  end: string;
 }
 
 @Component({
@@ -15,11 +17,10 @@ export class SessionsData {
 })
 export class SessionsManComponent implements OnInit {
 
-  public sessions: Array<any> = JSON.parse(localStorage.getItem("sessions"));
+  public sessions: Array<any> = JSON.parse(localStorage.getItem("sessions_table_info"));
   public date: {} = JSON.parse(localStorage.getItem("date"));
-  // public datas: Array<any> = JSON.parse(localStorage.getItem("datas"));
   public items: Array<any> = [];
-  public data: Array<SessionsData> = [];
+  public data: Array<SessionsData> = JSON.parse(localStorage.getItem("sessions_table_info"));
   public bean: {};
   public str: string;
   public max: any;
@@ -50,25 +51,16 @@ export class SessionsManComponent implements OnInit {
         title: 'Début',
         type: 'any',
       },
+      end: {
+        title: 'Fin',
+        type: 'any',
+      },
     },
   };
 
   source: LocalDataSource = new LocalDataSource();
-  editConfirm: any;
 
   constructor(private httpClient: HttpClient, private router: Router) {
-    for (const session of this.sessions) {
-      const currentTableData = new SessionsData();
-      this.httpClient.get<any>('http://localhost:5000/get-seance/' + session).subscribe(
-        temps => {
-          this.bean = { time: new Date(temps[0]['year'], temps[0]['month'], temps[0]['date'], temps[0]['hour'], temps[0]['minutes'], temps[0]['seconds'])};
-          this.str = this.bean['time'].toString();
-          this.date = this.str;
-          currentTableData.start = this.date;
-        });
-      currentTableData.name = session;
-      this.data.push(currentTableData);
-    }
     this.source.load(this.data);
   }
 
@@ -76,27 +68,18 @@ export class SessionsManComponent implements OnInit {
     this.getSessions();
   }
 
-  reloadComponent() {
-    const currentUrl = this.router.url;
-    this.router.navigate([currentUrl]);
-  }
-
   getSessions() {
-    this.httpClient.get<any>('http://localhost:5000/all-sessions').subscribe(
-      sessions => {
-        localStorage.setItem("sessions", JSON.stringify(sessions));
+    return this.httpClient.get<SessionsData>('http://localhost:5000/all_sessions_table').subscribe(
+      temps => {
+        localStorage.setItem("sessions_table_info", JSON.stringify(temps));
       });
-    this.sessions = JSON.parse(localStorage.getItem("sessions"));
   }
 
   onDeleteConfirm(event): void {
     if (window.confirm('Are you sure you want to delete ' + event['data']['name'] + '?')) {
       event.confirm.resolve();
       this.httpClient.delete<any>('http://localhost:5000/del-seance/' + event['data']['name']).subscribe(
-        temps => {
-          this.bean = { time: new Date(temps[0]['year'], temps[0]['month'], temps[0]['date'], temps[0]['hour'], temps[0]['minutes'], temps[0]['seconds'])};
-          localStorage.setItem("date", JSON.stringify(this.bean['time']));
-        });
+        temps => {});
     } else {
       event.confirm.reject();
     }
@@ -106,10 +89,7 @@ export class SessionsManComponent implements OnInit {
     if (window.confirm('Are you sure you want to edit ' + event['data']['name'] + '\'s name to ' + event['newData']['name'] + '?')) {
       event.confirm.resolve();
       this.httpClient.post<any>('http://localhost:5000/mod-seance/' + event['data']['name'] + '/' + event['newData']['name'], { title: 'Session deleted' }).subscribe(
-        temps => {
-          this.bean = { time: new Date(temps[0]['year'], temps[0]['month'], temps[0]['date'], temps[0]['hour'], temps[0]['minutes'], temps[0]['seconds'])};
-          localStorage.setItem("date", JSON.stringify(this.bean['time']));
-        });
+        temps => {});
     } else {
       event.confirm.reject();
     }
