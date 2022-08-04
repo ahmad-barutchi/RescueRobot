@@ -44,21 +44,21 @@ export class RobotDataService {
   }
 
   public getTemp(): any {
-    const data = JSON.parse(localStorage.getItem("datas"));
-    this.max = Object.keys(data).length;
-    for (let x = 0; x < this.max; x++) {
-      let lat: string = data[x]['pos'];
-      let long: string = data[x]['pos'];
-      lat = lat.substr(0, 9);
-      long = long.substr(10, 16);
-      const intLat: number = Number(lat);
-      const intLong: number = Number(long);
-      this.bean = { time: new Date(data[x]['year'], data[x]['month'], data[x]['date'], data[x]['hour'], data[x]['minutes'], data[x]['seconds']), open: data[x]['temp'], high: intLat, low: intLong, close: 'a', volume: 'a' };
-      this.result.push(this.bean);
-    }
-    this.res = this.result;
-    this.res.title = 'temp';
-    return this.result;
+    const url = Setting.baseUrl + 'get-seance/' + this.session;
+    this.httpClient.get<any[]>(url).subscribe(response => {
+      this.data = response.map(item => {
+        console.log(item['year']);
+        let lat: string = item['pos'];
+        let long: string = item['pos'];
+        lat = lat.substr(0, 9);
+        long = long.substr(10, 16);
+        const intLat: number = Number(lat);
+        const intLong: number = Number(long);
+        this.bean = { time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']), open: item['temp'], high: intLat, low: intLong, close: 'a', volume: 'a' };
+        console.log(this.bean);
+        return this.bean;
+      });
+    });
   }
 
   public getTemp2(): any[] {

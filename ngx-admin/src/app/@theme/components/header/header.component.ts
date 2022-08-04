@@ -60,9 +60,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (token.isValid()) {
           // here we receive a payload from the token and assigns it to our `user` variable
           this.user = token.getPayload();
-          console.log((token));
-        }
-      });
+        }});
   }
 
   getSessions() {

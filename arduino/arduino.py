@@ -65,7 +65,10 @@ try:
         minutes = tm[14:16]
         seconds = tm[17:19]
         print(year, month, date, hour, minutes, seconds)
-
+        if pieces[4] == 'y' or pieces[5] == 'y':
+            origin = "Human" if pieces[4] == 'y' else "Fire"
+        else:
+            origin = "None"
         frame = {
             "year": year,
             "month": month,
@@ -73,17 +76,19 @@ try:
             "hour": hour,
             "minutes": minutes,
             "seconds": seconds,
+            "datetime": year + '/' + month + '/' + date + ' ' + hour + ':' + minutes + ':' + seconds,
             "temp": pieces[0],
             "temp2": pieces[1],
             "humidity": pieces[2],
             "pos": pieces[3],
             "human": pieces[4],
-            "fire": pieces[5]
+            "fire": pieces[5],
+            "origin": origin
         }
         # Here we are going to insert the data into the Database
         try:
             rec = collection_db.insert_one(frame)
         except Exception as e:
-            print("An exception occurred ::", e)
-except:
-    print("Failed to get data from Arduino!")
+            print("Pymongo insert one got error: ", e)
+except serial.SerialException as e:
+    print("Failed to get data from Arduino! Error: ", e)

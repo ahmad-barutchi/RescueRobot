@@ -1,29 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import { LocalDataSource } from 'ng2-smart-table';
+import {Component} from '@angular/core';
+import {ServerDataSource} from 'ng2-smart-table';
 import {HttpClient} from "@angular/common/http";
-import {Router} from "@angular/router";
-import {Observable, Subscription} from "rxjs";
-
-export class SessionsData {
-  name: string;
-  start: string;
-  end: string;
-}
+import {Setting} from "../../setting";
 
 @Component({
   selector: 'ngx-session-man',
   templateUrl: './sessions-man.component.html',
   styleUrls: ['./sessions-man.component.scss'],
 })
-export class SessionsManComponent implements OnInit {
-
-  public sessions: Array<any> = JSON.parse(localStorage.getItem("sessions_table_info"));
-  public date: {} = JSON.parse(localStorage.getItem("date"));
-  public items: Array<any> = [];
-  public data: Array<SessionsData> = JSON.parse(localStorage.getItem("sessions_table_info"));
-  public bean: {};
-  public str: string;
-  public max: any;
+export class SessionsManComponent {
 
   settings = {
     mode: 'inline',
@@ -57,22 +42,10 @@ export class SessionsManComponent implements OnInit {
       },
     },
   };
+  source: ServerDataSource;
 
-  source: LocalDataSource = new LocalDataSource();
-
-  constructor(private httpClient: HttpClient, private router: Router) {
-    this.source.load(this.data);
-  }
-
-  ngOnInit() {
-    this.getSessions();
-  }
-
-  getSessions() {
-    return this.httpClient.get<SessionsData>('http://localhost:5000/all_sessions_table').subscribe(
-      temps => {
-        localStorage.setItem("sessions_table_info", JSON.stringify(temps));
-      });
+  constructor(private httpClient: HttpClient) {
+    this.source = new ServerDataSource(this.httpClient, {endPoint: Setting.baseUrl + 'all_sessions_man'});
   }
 
   onDeleteConfirm(event): void {

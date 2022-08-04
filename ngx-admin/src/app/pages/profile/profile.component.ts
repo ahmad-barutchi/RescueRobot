@@ -7,7 +7,7 @@ import { FormBuilder } from '@angular/forms';
 import { Injectable } from '@angular/core';
 import {ProfileService} from "./profile.service";
 
-let prof = {
+const prof = {
   "name": "doudou",
   "email": "aaa@adadadada.dada",
 };

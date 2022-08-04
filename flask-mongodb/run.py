@@ -1,5 +1,6 @@
+import datetime
+
 import flask
-import pymongo
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
@@ -73,7 +74,6 @@ def login():
 
 @app.route("/account/<email>", methods=['GET'])
 def get_profile(email):
-    profile = {}
     # database
     db = conn.app_database
     # collection
@@ -89,7 +89,6 @@ def get_profile(email):
 
 @app.route("/accounts", methods=['GET'])
 def get_profiles():
-    profile = {}
     profiles = []
     # database
     db = conn.app_database
@@ -135,6 +134,79 @@ def get_seance(seance_id):
     return response
 
 
+@app.route("/session_info/<seance_id>", methods=['GET'])
+def get_session_info(seance_id):
+    temp_like = request.args.get('temp_like')
+    temp2_like = request.args.get('temp2_like')
+    humidity_like = request.args.get('humidity_like')
+    origin_like = request.args.get('origin_like')
+    date_like = request.args.get('date_like')
+    pos_like = request.args.get('pos_like')
+    session_info_vars = {
+        "temp_like": temp_like,
+        "temp2_like": temp2_like,
+        "humidity_like": humidity_like,
+        "origin_like": origin_like,
+        "date_like": date_like,
+        "pos_like": pos_like,
+    }
+    print(type(temp_like))
+    print(session_info_vars)
+    session_info_items = {}
+    for key, value in session_info_vars.items():
+        print(key, value)
+        if value is not None:
+            value = str(value)
+            key = key[:-5]
+            session_info_items.update({key: {"$regex": value}})
+    print(session_info_items)
+    db = conn.RobotData
+    collection = db[seance_id]
+    cursor = collection.find(session_info_items)
+    presets = []
+    for record in cursor:
+        if record["human"] == 'y' or record["fire"] == 'y':
+            origin = "Human" if record["human"] == 'y' else "Fire"
+            preset = {
+                "origin": origin,
+                "date": record["year"] + '/' + record["month"] + '/' + record["date"] + ' '
+                + record["hour"] + ':' + record["minutes"] + ':' + record["seconds"],
+                "temp": float(record["temp"]),
+                "temp2": float(record["temp2"]),
+                "humidity": float(record["humidity"]),
+                "pos": record["pos"],
+            }
+            presets.append(preset)
+    response = flask.jsonify(presets)
+    return response
+
+
+@app.route("/get-seance/<seance_id>/temp", methods=['GET'])
+def get_seance_temp(seance_id):
+    db = conn.RobotData
+    collection = db[seance_id]
+    cursor = collection.find()
+    presets = []
+
+    for record in cursor:
+        time_stamp = "new Date" + (record["year"] + record["month"] + record["date"] +
+                                   record["hour"] + record["minutes"] + record["seconds"])
+        lat = record["pos"][0:9]
+        lon = record["pos"][10:16]
+        preset = {
+            "time": time_stamp,
+            "open": float(record["temp"]),
+            "high": float(lat),
+            "low": float(lon),
+            "close": 'a',
+            "volume": 'a',
+        }
+        presets.append(preset)
+
+    response = flask.jsonify(presets)
+    return response
+
+
 @app.route("/del-seance/<seance_id>", methods=['DELETE'])
 def del_seance(seance_id):
     db = conn.RobotData
@@ -167,8 +239,8 @@ def all_sessions():
     return response
 
 
-@app.route("/all_sessions_table", methods=['GET'])
-def all_sessions_table():
+@app.route("/all_sessions_man", methods=['GET'])
+def all_sessions_man():
     db = conn.RobotData
     collections_sorted = []
     collections = []
@@ -192,12 +264,19 @@ def all_sessions_table():
             "start": start["year"] + '/' + start["month"] + '/' + start["date"] + ' '
             + start["hour"] + ':' + start["minutes"] + ':' + start["seconds"],
             "end": end["year"] + '/' + end["month"] + '/' + end["date"] + ' '
-                     + end["hour"] + ':' + end["minutes"] + ':' + end["seconds"]
+            + end["hour"] + ':' + end["minutes"] + ':' + end["seconds"]
         }
         presets.append(preset)
 
     response = flask.jsonify(presets)
     return response
+
+
+def to_number(value):
+    if '.' in value:
+        return float(value)
+    else:
+        return int(value)
 
 
 if __name__ == "__main__":

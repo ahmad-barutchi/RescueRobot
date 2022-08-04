@@ -127,7 +127,7 @@ export const NB_CORE_PROVIDERS = [
         baseEndpoint: baseUrl,
 
         login: {
-          endpoint: '/login',
+          endpoint: 'login',
           method: 'post',
           redirect: {
             success: 'pages',

@@ -17,8 +17,7 @@ export class IgniteuiMultigraphComponent implements OnInit {
   constructor(private dataService: RobotDataService, private httpClient: HttpClient) {}
 
   ngOnInit() {
-    this.data = [ this.dataService.getTemp(),  this.dataService.getTemp2(), this.dataService.getHumidity(),
-      this.dataService.getFire(), this.dataService.getHuman()];
+    this.data = [ this.dataService.getTemp()];
     // this.records = [];
     /*this.dataService.getTemps().subscribe(response => {
       this.records = response.map(item => {
