@@ -81,6 +81,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   reloadComponent() {
     const currentUrl = this.router.url;
+    console.log(currentUrl);
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
     this.router.onSameUrlNavigation = 'reload';
     this.router.navigate([currentUrl]);

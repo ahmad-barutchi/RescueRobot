@@ -181,32 +181,6 @@ def get_session_info(seance_id):
     return response
 
 
-@app.route("/get-seance/<seance_id>/temp", methods=['GET'])
-def get_seance_temp(seance_id):
-    db = conn.RobotData
-    collection = db[seance_id]
-    cursor = collection.find()
-    presets = []
-
-    for record in cursor:
-        time_stamp = "new Date" + (record["year"] + record["month"] + record["date"] +
-                                   record["hour"] + record["minutes"] + record["seconds"])
-        lat = record["pos"][0:9]
-        lon = record["pos"][10:16]
-        preset = {
-            "time": time_stamp,
-            "open": float(record["temp"]),
-            "high": float(lat),
-            "low": float(lon),
-            "close": 'a',
-            "volume": 'a',
-        }
-        presets.append(preset)
-
-    response = flask.jsonify(presets)
-    return response
-
-
 @app.route("/del-seance/<seance_id>", methods=['DELETE'])
 def del_seance(seance_id):
     db = conn.RobotData
