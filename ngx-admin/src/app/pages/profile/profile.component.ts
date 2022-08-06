@@ -8,8 +8,8 @@ import { Injectable } from '@angular/core';
 import {ProfileService} from "./profile.service";
 
 const prof = {
-  "name": "doudou",
-  "email": "aaa@adadadada.dada",
+  "name": "name",
+  "email": "email",
 };
 
 @Component({
@@ -25,7 +25,7 @@ export class ProfileComponent implements OnInit {
   name = new FormControl('');
 
   user: {};
-  profile: {};
+  profile: {} = prof;
   baseUrl = Setting.baseUrl;
 
   constructor(
@@ -44,26 +44,21 @@ export class ProfileComponent implements OnInit {
       });
   }
   ngOnInit(): void {
-    /* this.profileService.getProfiles().subscribe((res) => {
-      console.log("got profiles");
-      this.profile = res;
-    }); */
-    this.getProfile();
-  }
-
-  getProfile(): {} {
-    this.httpClient.get<any>(this.baseUrl + 'account/' + this.user['sub']).subscribe(
+    this.profileService.getProfileByEmail(this.user['sub']).subscribe(
       profile => {
         this.profile = profile;
       },
     );
-    return (this.profile) ? this.profile : null;
+    /* this.profileService.getProfiles().subscribe((res) => {
+      console.log("got profiles");
+    }); */
   }
 
   updateProfile() {
     console.log('updating profile...');
-    this.profile['password'] = this.password.value;
     this.profile['name'] = this.name.value;
+    this.profile['password'] = this.password.value;
+    this.profileService.updateProfile(this.user['sub'], this.profile['name'], this.profile['password']);
     console.log('updated profile: ', this.profile);
 /*
     this.httpClient.put<any>(this.baseUrl + '/account/' + this.user['sub'], this.profile).subscribe(

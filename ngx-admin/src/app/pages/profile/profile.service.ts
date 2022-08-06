@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {Setting} from "../../setting";
 import { Profile } from './profile';
-let prof = {
+import {Observable} from "rxjs";
+const prof = {
   "name": "doudou",
   "email": "aaa@adadadada.dada",
 };
@@ -15,22 +16,15 @@ export class ProfileService {
   req: any = null;
   constructor(private httpClient: HttpClient) { }
 
+  public getProfileByEmail(email: string): Observable<any[]> {
+    return this.httpClient.get<any>(Setting.baseUrl + 'account/' + email);
+  }
   public createProfile(customer: Profile) {}
 
-  public updateProfile(customer: Profile) {}
+  public updateProfile(email: string, name: string, password: string) {
+    this.httpClient.get<any>(Setting.baseUrl + 'account_update/' + email);
+  }
 
   public deleteProfile(id: number) {}
-
-  public getProfileById(id: number) {}
-
-  public getProfiles() {
-    this.req = this.httpClient.get<Profile[]>(`${this.apiURL}accounts`);
-    return (this.req) ? this.req : null;
-  }
-
-  public getContacts() {
-    this.req = this.httpClient.get<Profile[]>(`${this.apiURL}accounts`);
-    return (this.req) ? this.req : null;
-  }
 }
 

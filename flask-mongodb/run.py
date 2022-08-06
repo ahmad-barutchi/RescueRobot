@@ -1,11 +1,12 @@
 import datetime
 
+import bson
 import flask
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
-from pymongo.errors import OperationFailure
+from pymongo.errors import OperationFailure, PyMongoError
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 
 try:
     conn = MongoClient("localhost", 27017)
@@ -54,12 +55,8 @@ def login():
     db = conn.app_database
     # collection
     user = db["User"]
-    if request.is_json:
-        email = request.json["email"]
-        password = request.json["password"]
-    else:
-        email = request.json["email"]
-        password = request.json["password"]
+    email = request.json["email"]
+    password = request.json["password"]
 
     test = user.find_one({"email": email})
 
@@ -105,6 +102,26 @@ def get_profiles():
 
     response = flask.jsonify(profiles)
     return response
+
+
+@app.route("/password", methods=['POST'])
+@jwt_required()
+def update_password():
+    email = get_jwt_identity()
+    password = request.json["password"]
+    # database
+    db = conn.app_database
+    # collection
+    user = db["User"]
+    query = {"email": email}
+    new_query = {"$set": {"password": generate_password_hash(password, method='sha256')}}
+    try:
+        user.update_one(query, new_query)
+        return jsonify(message="Password updated"), 200
+    except PyMongoError as err:
+        print("Pymongo erroro code: ", err)
+        print("Error while password updating for: ", email)
+        return jsonify(message="Error while password updating"), 422
 
 
 @app.route("/get-seance/<seance_id>", methods=['GET'])

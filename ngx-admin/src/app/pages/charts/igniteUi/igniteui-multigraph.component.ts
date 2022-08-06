@@ -32,7 +32,6 @@ export class IgniteuiMultigraphComponent implements OnInit {
   ngOnInit() {
     // this.records = [];
     this.dataService.getTemps().subscribe(response => {
-      console.log("Respo: ", response);
       this.records = response.map(item => {
         let lat: string = item['pos'];
         let long: string = item['pos'];
@@ -43,7 +42,12 @@ export class IgniteuiMultigraphComponent implements OnInit {
         if (item['human'] === 'y') {
           this.human = 50;
         } else {
-          this.human = 0;
+          this.human = 20;
+        }
+        if (item['fire'] === 'y') {
+          this.fire = 50;
+        } else {
+          this.fire = 20;
         }
         const temp: any = {
           time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),

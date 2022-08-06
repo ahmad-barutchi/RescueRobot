@@ -139,15 +139,15 @@ export const NB_CORE_PROVIDERS = [
           method: 'post',
         },
         logout: {
-          endpoint: '/user/logout',
+          endpoint: 'user/logout',
           method: 'post',
         },
         requestPass: {
-          endpoint: '/password/forgotpassword',
+          endpoint: 'password/forgotpassword',
           method: 'post',
         },
         resetPass: {
-          endpoint: '/password/changepassword',
+          endpoint: 'password',
           method: 'post',
         },
       }),
