@@ -25,8 +25,8 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
       const colors: any = config.variables;
       const chartjs: any = config.variables.chartjs;
       this.getTemps();
-      this.httpClient.get<any>('http://localhost:5000/get-temp',
-        {headers: new HttpHeaders({'Access-Control-Allow-Origin': 'http://localhost:5000', 'Access-Control-Allow-Headers': '*'})}).subscribe(
+      this.httpClient.get<any>(Setting.baseUrl + 'get-temp',
+        {headers: new HttpHeaders({'Access-Control-Allow-Origin': Setting.baseUrl, 'Access-Control-Allow-Headers': '*'})}).subscribe(
         temps => {
           this.temps = temps;
           console.log('first temps: ', this.temps[0]['temp']);

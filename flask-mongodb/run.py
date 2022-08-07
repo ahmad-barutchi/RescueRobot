@@ -1,6 +1,4 @@
 import datetime
-
-import bson
 import flask
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
@@ -44,7 +42,7 @@ def register():
         user_info = dict(first_name=first_name, email=email, role=role,
                          password=generate_password_hash(password, method='sha256'))
         user.insert_one(user_info)
-        token = create_access_token(identity=email)
+        token = create_access_token(identity=email, fresh=False, expires_delta=datetime.timedelta(minutes=540))
         return jsonify(message="User added sucessfully", token=token), 201
 
 
@@ -58,12 +56,15 @@ def login():
     email = request.json["email"]
     password = request.json["password"]
 
-    test = user.find_one({"email": email})
-
-    if test:
-        bool_login = check_password_hash(test['password'], password)
+    current_user = user.find_one({"email": email})
+    role = current_user['role']
+    identity = {"email": email, "role": role}
+    print(identity)
+    if current_user:
+        bool_login = check_password_hash(current_user['password'], password)
     if bool_login:
-        token = create_access_token(identity=email)
+        # token is valid for 540 minutes = 9 hours. i.e: 8am-17am
+        token = create_access_token(identity=identity, fresh=False, expires_delta=datetime.timedelta(minutes=540))
         return jsonify(message="Login Succeeded!", token=token), 200
     else:
         return jsonify(message="Bad Email or Password"), 401
@@ -84,19 +85,36 @@ def get_profile(email):
     return response
 
 
+# !!!!!!!!! Revoke token after ban !!!!!!!!
 @app.route("/accounts", methods=['GET'])
+@jwt_required()
 def get_profiles():
     profiles = []
     # database
     db = conn.app_database
     # collection
     user = db["User"]
+    identity = get_jwt_identity()
+    if identity['role'] == "user":
+        query = {"email": identity['email']}
+        new_query = {"$set": {"password": "Banned for getting /accounts as user"}}
+        try:
+            print("Banned!")
+            user.update_one(query, new_query)
+            return jsonify(message="Banned!"), 200
+        except PyMongoError as err:
+            print("Pymongo erroro code: ", err)
+            print("Error while role hacking!!! password can't banned for: ", identity['email'])
+            return jsonify(message="Dont get banned please!"), 422
+
     users = user.find()
-    print(users)
     for user_info in users:
+        mdp = user_info['password'][:50]
         profile = {
-            "name": user_info['first_name'],
             "email": user_info['email'],
+            "name": user_info['first_name'],
+            "role": user_info['role'],
+            "mdp": mdp,
         }
         profiles.append(profile)
 
@@ -104,23 +122,45 @@ def get_profiles():
     return response
 
 
+@app.route("/del-user/<email>", methods=['DELETE'])
+def del_user(email):
+    # database
+    db = conn.app_database
+    # collection
+    user = db["User"]
+    user.delete_one({"email": email})
+    return "Deleted!", 200
+
+
+@app.route("/mod-user/<email>/<name>", methods=['POST'])
+def mod_user(email, name):
+    print(email, name)
+    # database
+    db = conn.app_database
+    # collection
+    user = db["User"]
+    user.update_one({"email": email}, {"$set": {"first_name": name}})
+    user_info = user.find_one({"email": email})
+    return "Modified!", 200
+
+
 @app.route("/password", methods=['POST'])
 @jwt_required()
 def update_password():
-    email = get_jwt_identity()
+    identity = get_jwt_identity()
     password = request.json["password"]
     # database
     db = conn.app_database
     # collection
     user = db["User"]
-    query = {"email": email}
+    query = {"email": identity['email']}
     new_query = {"$set": {"password": generate_password_hash(password, method='sha256')}}
     try:
         user.update_one(query, new_query)
         return jsonify(message="Password updated"), 200
     except PyMongoError as err:
         print("Pymongo erroro code: ", err)
-        print("Error while password updating for: ", email)
+        print("Error while password updating for: ", identity['email'])
         return jsonify(message="Error while password updating"), 422
 
 
@@ -153,30 +193,25 @@ def get_seance(seance_id):
 
 @app.route("/session_info/<seance_id>", methods=['GET'])
 def get_session_info(seance_id):
-    temp_like = request.args.get('temp_like')
-    temp2_like = request.args.get('temp2_like')
-    humidity_like = request.args.get('humidity_like')
-    origin_like = request.args.get('origin_like')
-    date_like = request.args.get('date_like')
-    pos_like = request.args.get('pos_like')
+    temp = request.args.get('temp_like')
+    temp2 = request.args.get('temp2_like')
+    humidity = request.args.get('humidity_like')
+    origin = request.args.get('origin_like')
+    date = request.args.get('date_like')
+    pos = request.args.get('pos_like')
     session_info_vars = {
-        "temp_like": temp_like,
-        "temp2_like": temp2_like,
-        "humidity_like": humidity_like,
-        "origin_like": origin_like,
-        "date_like": date_like,
-        "pos_like": pos_like,
+        "temp": temp,
+        "temp2": temp2,
+        "humidity": humidity,
+        "origin": origin,
+        "date": date,
+        "pos": pos,
     }
-    print(type(temp_like))
-    print(session_info_vars)
     session_info_items = {}
     for key, value in session_info_vars.items():
-        print(key, value)
         if value is not None:
             value = str(value)
-            key = key[:-5]
             session_info_items.update({key: {"$regex": value}})
-    print(session_info_items)
     db = conn.RobotData
     collection = db[seance_id]
     cursor = collection.find(session_info_items)
@@ -194,6 +229,40 @@ def get_session_info(seance_id):
                 "pos": record["pos"],
             }
             presets.append(preset)
+    response = flask.jsonify(presets)
+    return response
+
+
+@app.route("/all_sessions_man", methods=['GET'])
+def all_sessions_man():
+    name_like = request.args.get('name_like')
+    db = conn.RobotData
+    collections_sorted = []
+    collections = []
+    collection = db.collection_names(include_system_collections=False)
+    for col in collection:
+        col = col[6:]
+        collections.append(int(col))
+    collections.sort()
+    for col in collections:
+        collections_sorted.append("Seance" + str(col))
+    presets = []
+    for col in collections_sorted:
+        collection = db[col]
+        start = collection.find_one()
+        end_cursor = collection.find()
+        end = {}
+        for end_cursor_item in end_cursor:
+            end = end_cursor_item
+        preset = {
+            "name": col,
+            "start": start["year"] + '/' + start["month"] + '/' + start["date"] + ' '
+            + start["hour"] + ':' + start["minutes"] + ':' + start["seconds"],
+            "end": end["year"] + '/' + end["month"] + '/' + end["date"] + ' '
+            + end["hour"] + ':' + end["minutes"] + ':' + end["seconds"]
+        }
+        presets.append(preset)
+
     response = flask.jsonify(presets)
     return response
 
@@ -227,39 +296,6 @@ def all_sessions():
     for col in collections:
         collections_sorted.append("Seance" + str(col))
     response = flask.jsonify(collections_sorted)
-    return response
-
-
-@app.route("/all_sessions_man", methods=['GET'])
-def all_sessions_man():
-    db = conn.RobotData
-    collections_sorted = []
-    collections = []
-    collection = db.collection_names(include_system_collections=False)
-    for col in collection:
-        col = col[6:]
-        collections.append(int(col))
-    collections.sort()
-    for col in collections:
-        collections_sorted.append("Seance" + str(col))
-    presets = []
-    for col in collections_sorted:
-        collection = db[col]
-        start = collection.find_one()
-        end_cursor = collection.find()
-        end = {}
-        for end_cursor_item in end_cursor:
-            end = end_cursor_item
-        preset = {
-            "name": col,
-            "start": start["year"] + '/' + start["month"] + '/' + start["date"] + ' '
-            + start["hour"] + ':' + start["minutes"] + ':' + start["seconds"],
-            "end": end["year"] + '/' + end["month"] + '/' + end["date"] + ' '
-            + end["hour"] + ':' + end["minutes"] + ':' + end["seconds"]
-        }
-        presets.append(preset)
-
-    response = flask.jsonify(presets)
     return response
 
 

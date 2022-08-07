@@ -9,6 +9,7 @@ import {SessionComponent} from "./sessions/session.component";
 import {SessionInfoComponent} from "./session-info/session-info.component";
 import {SessionsManComponent} from "./sessions-man/sessions-man.component";
 import {ProfileComponent} from "./profile/profile.component";
+import {UserManComponent} from "./user-man/user-man.component";
 
 const routes: Routes = [{
   path: '',
@@ -17,6 +18,10 @@ const routes: Routes = [{
     {
       path: 'sessions',
       component: SessionComponent,
+    },
+    {
+      path: 'user-man',
+      component: UserManComponent,
     },
     {
       path: 'session-info',

@@ -44,7 +44,7 @@ export class ProfileComponent implements OnInit {
       });
   }
   ngOnInit(): void {
-    this.profileService.getProfileByEmail(this.user['sub']).subscribe(
+    this.profileService.getProfileByEmail(this.user['sub'].email).subscribe(
       profile => {
         this.profile = profile;
       },
@@ -60,14 +60,5 @@ export class ProfileComponent implements OnInit {
     this.profile['password'] = this.password.value;
     this.profileService.updateProfile(this.user['sub'], this.profile['name'], this.profile['password']);
     console.log('updated profile: ', this.profile);
-/*
-    this.httpClient.put<any>(this.baseUrl + '/account/' + this.user['sub'], this.profile).subscribe(
-      profile => {
-        this.profile = profile;
-        console.log('profile: ', this.profile);
-      },
-    );
-    this.getProfile();
-    */
   }
 }

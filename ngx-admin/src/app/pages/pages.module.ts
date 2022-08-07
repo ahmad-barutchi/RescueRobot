@@ -17,6 +17,7 @@ import { SessionModule } from "./sessions/session.module";
 import { SessionInfoModule } from "./session-info/session-info.module";
 import { SessionsManModule } from "./sessions-man/sessions-man.module";
 import {ProfileModule} from "./profile/profile.module";
+import {UserManModule} from "./user-man/user-man.module";
 
 @NgModule({
   imports: [
@@ -31,6 +32,7 @@ import {ProfileModule} from "./profile/profile.module";
     SessionInfoModule,
     SessionsManModule,
     ProfileModule,
+    UserManModule,
   ],
   declarations: [
     PagesComponent,

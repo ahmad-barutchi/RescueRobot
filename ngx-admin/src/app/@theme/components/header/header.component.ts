@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {NbAuthJWTToken, NbAuthService} from "@nebular/auth";
+import {Setting} from "../../../setting";
 
 @Component({
   selector: 'ngx-header',
@@ -41,7 +42,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   currentTheme = 'default';
-
   userMenu = [ { title: 'Profile', link: '/pages/profile'}, { title: 'Log out', link: '/auth/login' } ];
   currentSession;
 
@@ -60,28 +60,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (token.isValid()) {
           // here we receive a payload from the token and assigns it to our `user` variable
           this.user = token.getPayload();
+          if (this.user['sub'].role === "admin") {
+            this.userMenu.push({ title: 'Users administration', link: '/pages/user-man' });
+          }
         }});
   }
 
   getSessions() {
-    this.httpClient.get<any>('http://localhost:5000/all-sessions').subscribe(
+    this.httpClient.get<any>(Setting.baseUrl + 'all-sessions').subscribe(
       sessions => {
         this.sessions = sessions;
       });
   }
 
-  changeSession(session_id: any) {
-    localStorage.setItem("session", JSON.stringify(session_id));
-    this.httpClient.get<any>('http://localhost:5000/get-seance/' + session_id).subscribe(
-      temps => {
-        localStorage.setItem("datas", JSON.stringify(temps));
-      });
+  changeSession() {
     this.reloadComponent();
   }
 
   reloadComponent() {
     const currentUrl = this.router.url;
-    console.log(currentUrl);
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
     this.router.onSameUrlNavigation = 'reload';
     this.router.navigate([currentUrl]);

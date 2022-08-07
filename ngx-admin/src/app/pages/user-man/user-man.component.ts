@@ -1,14 +1,14 @@
-import {Component} from '@angular/core';
-import {ServerDataSource} from 'ng2-smart-table';
+import { Component } from '@angular/core';
+import {LocalDataSource, ServerDataSource} from 'ng2-smart-table';
 import {HttpClient} from "@angular/common/http";
 import {Setting} from "../../setting";
 
 @Component({
-  selector: 'ngx-session-man',
-  templateUrl: './sessions-man.component.html',
-  styleUrls: ['./sessions-man.component.scss'],
+  selector: 'ngx-user-man',
+  templateUrl: './user-man.component.html',
+  styleUrls: ['./user-man.component.scss'],
 })
-export class SessionsManComponent {
+export class UserManComponent {
 
   settings = {
     mode: 'inline',
@@ -28,30 +28,36 @@ export class SessionsManComponent {
       confirmDelete: true,
     },
     columns: {
-      name: {
-        title: 'Séance',
+      email: {
+        title: 'Email',
         type: 'string',
       },
-      start: {
-        title: 'Début',
-        type: 'any',
+      name: {
+        title: 'Name',
+        type: 'string',
       },
-      end: {
-        title: 'Fin',
-        type: 'any',
+      role: {
+        title: 'Role',
+        type: 'string',
+      },
+      mdp: {
+        title: 'Password',
+        type: 'string',
       },
     },
   };
+
+  public session: string;
   source: ServerDataSource;
 
   constructor(private httpClient: HttpClient) {
-    this.source = new ServerDataSource(this.httpClient, {endPoint: Setting.baseUrl + 'all_sessions_man'});
+    this.source = new ServerDataSource(this.httpClient, {searchFields: 'temp', endPoint: Setting.baseUrl + 'accounts'});
   }
 
   onDeleteConfirm(event): void {
-    if (window.confirm('Are you sure you want to delete ' + event['data']['name'] + '?')) {
+    if (window.confirm('Are you sure you want to delete ' + event['data']['email'] + '?')) {
       event.confirm.resolve();
-      this.httpClient.delete<any>(Setting.baseUrl + 'del-seance/' + event['data']['name']).subscribe(
+      this.httpClient.delete<any>(Setting.baseUrl + 'del-user/' + event['data']['email']).subscribe(
         temps => {});
     } else {
       event.confirm.reject();
@@ -61,7 +67,10 @@ export class SessionsManComponent {
   onEditConfirm(event): void {
     if (window.confirm('Are you sure you want to edit ' + event['data']['name'] + '\'s name to ' + event['newData']['name'] + '?')) {
       event.confirm.resolve();
-      this.httpClient.post<any>(Setting.baseUrl + 'mod-seance/' + event['data']['name'] + '/' + event['newData']['name'], { title: 'Session Modified' }).subscribe(
+      console.log(event);
+      const url = Setting.baseUrl + 'mod-user?';
+      // soit url injection avec des slash, soit par parametre comme /accounts?name_like=momo :)
+      this.httpClient.post<any>(Setting.baseUrl + 'mod-user/' + event['data']['email'] + '/' + event['newData']['name'], { title: 'User Modified' }).subscribe(
         temps => {});
     } else {
       event.confirm.reject();
