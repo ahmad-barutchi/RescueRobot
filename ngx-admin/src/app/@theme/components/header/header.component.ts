@@ -60,6 +60,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (token.isValid()) {
           // here we receive a payload from the token and assigns it to our `user` variable
           this.user = token.getPayload();
+          console.log(this.user['sub'].role);
           if (this.user['sub'].role === "admin") {
             this.userMenu.push({ title: 'Users administration', link: '/pages/user-man' });
           }
@@ -73,7 +74,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
   }
 
-  changeSession() {
+  changeSession(session_id: any) {
+    localStorage.setItem("session", JSON.stringify(session_id));
     this.reloadComponent();
   }
 

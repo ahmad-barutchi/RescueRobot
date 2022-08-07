@@ -2,3 +2,4 @@ Flask
 Flask-WTF
 pymongo==3.4.0
 serial
+redis
