@@ -58,7 +58,7 @@ export class UserManComponent {
     if (window.confirm('Are you sure you want to delete ' + event['data']['email'] + '?')) {
       event.confirm.resolve();
       this.httpClient.delete<any>(Setting.baseUrl + 'del_user/' + event['data']['email']).subscribe(
-        temps => {});
+        res => {});
     } else {
       event.confirm.reject();
     }

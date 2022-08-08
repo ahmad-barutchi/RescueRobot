@@ -22,10 +22,6 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/pages/session-info',
       },
       {
-        title: 'Gestion des séances',
-        link: '/pages/sessions-man',
-      },
-      {
         title: 'Gestion des profiles',
         link: '/pages/profile',
       },

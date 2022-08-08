@@ -7,14 +7,16 @@ device = 'COM3'  # this will have to be changed to the serial port you are using
 try:
     print("Trying...", device)
     arduino = serial.Serial(device, 9600)
-except:
-    print("Failed to connect on", device)
+except Exception as e:
+    arduino = ""
+    print("Failed to connect on", device, ", Error: ", e)
 
 try:
     conn = MongoClient("localhost", 27017)
     print("Connected successfully to mongoDB!!!")
-except:
-    print("Could not connect to MongoDB")
+except Exception as e:
+    conn = ""
+    print("Could not connect to MongoDB", e)
 
 # database
 db = conn.RobotData
@@ -23,7 +25,7 @@ db = conn.RobotData
 collections = []
 collection = db.collection_names(include_system_collections=False)
 if not collection:
-    mycol = db["Seance1"]
+    collection = db["Seance1"]
     print("Seance1 created")
 else:
     for col in collection:

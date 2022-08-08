@@ -6,11 +6,11 @@ from pymongo.errors import OperationFailure, PyMongoError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 
-conn = ""
 try:
     conn = MongoClient("localhost", 27017)
     print("Connected successfully to mongoDB!!!")
 except OperationFailure as e:
+    conn = ""
     print("Could not connect to MongoDB")
 
 
@@ -42,7 +42,8 @@ def register():
         user_info = dict(first_name=first_name, email=email, role=role,
                          password=generate_password_hash(password, method='sha256'))
         user.insert_one(user_info)
-        token = create_access_token(identity=email, fresh=False, expires_delta=datetime.timedelta(minutes=540))
+        identity = {"email": email, "role": role}
+        token = create_access_token(identity=identity, fresh=False, expires_delta=datetime.timedelta(minutes=540))
         return jsonify(message="User added successfully", token=token), 201
 
 
@@ -66,6 +67,9 @@ def login():
         return jsonify(message="Bad Email or Password"), 401
 
 
+# !!!!!!!!! To delete ################
+# !!!!!!!!! To delete ################
+# !!!!!!!!! To delete ################
 @app.route("/account/<email>", methods=['GET'])
 def get_profile(email):
     user_info = user.find_one({"email": email})
@@ -80,12 +84,28 @@ def get_profile(email):
 @app.route("/accounts", methods=['GET'])
 @jwt_required()
 def get_profiles():
-    profiles = []
     identity = get_jwt_identity()
-    check_ban(identity)
-    users = user.find()
+    res = check_ban(identity)
+    if res:
+        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
+    email = request.args.get("email_like")
+    name = request.args.get("name_like")
+    role = request.args.get("role_like")
+    user_search_args = {
+        "email": email,
+        "first_name": name,
+        "role": role,
+    }
+    user_search_items = {}
+    for key, value in user_search_args.items():
+        if value is not None:
+            user_search_items.update({key: {"$regex": value}})
+    print(user_search_items)
+    upd = {"$set": user_search_items}
+    profiles = []
+    users = user.find(user_search_items)
     for user_info in users:
-        mdp = user_info['password'][:50]
+        mdp = user_info['password'][:20]
         profile = {
             "email": user_info['email'],
             "name": user_info['first_name'],
@@ -101,6 +121,10 @@ def get_profiles():
 @app.route("/del_user/<email>", methods=['DELETE'])
 @jwt_required()
 def del_user(email):
+    identity = get_jwt_identity()
+    res = check_ban(identity)
+    if res:
+        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
     user.delete_one({"email": email})
     return "Deleted!", 200
 
@@ -108,14 +132,14 @@ def del_user(email):
 @app.route("/mod_user/<email>", methods=['PUT'])
 @jwt_required()
 def mod_user(email):
+    identity = get_jwt_identity()
+    res = check_ban(identity)
+    if res:
+        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
     name = request.args.get("name")
-    print("name: ", name)
     role = request.args.get("role")
-    print("Role: ", role)
     password = request.args.get("password")
     password = generate_password_hash(str(password), method='sha256')
-    print("Password: ", password)
-
     user_upd_args = {
         "first_name": name,
         "role": role,
@@ -124,7 +148,6 @@ def mod_user(email):
     user_upd_items = {}
     for key, value in user_upd_args.items():
         if value is not None:
-            print("items: ", key, ":", value)
             user_upd_items.update({key: value})
     print(user_upd_items)
     upd = {"$set": user_upd_items}
@@ -198,7 +221,6 @@ def get_session_info(seance_id):
     session_info_items = {}
     for key, value in session_info_args.items():
         if value is not None:
-            value = str(value)
             session_info_items.update({key: {"$regex": value}})
     collection = db[seance_id]
     cursor = collection.find(session_info_items)
@@ -223,7 +245,10 @@ def get_session_info(seance_id):
 @app.route("/all_sessions_man", methods=['GET'])
 @jwt_required()
 def all_sessions_man():
-    collections_sorted_filter = []
+    identity = get_jwt_identity()
+    res = check_ban(identity)
+    if res:
+        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
     session_name = request.args.get('name_like')
     collections_sorted = get_all_sessions()
     if session_name is not None:
@@ -250,20 +275,31 @@ def all_sessions_man():
 
 
 @app.route("/del-seance/<seance_id>", methods=['DELETE'])
+@jwt_required()
 def del_seance(seance_id):
+    identity = get_jwt_identity()
+    res = check_ban(identity)
+    if res:
+        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
     collection = db[seance_id]
     collection.drop()
     return "Deleted!", 200
 
 
 @app.route("/mod-seance/<seance_id>/<new_seance_id>", methods=['POST'])
+@jwt_required()
 def mod_seance(seance_id, new_seance_id):
+    identity = get_jwt_identity()
+    res = check_ban(identity)
+    if res:
+        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
     collection = db[seance_id]
     collection.rename(new_seance_id)
     return "Modified!", 200
 
 
 @app.route("/all-sessions", methods=['GET'])
+@jwt_required()
 def all_sessions():
     collections_sorted = get_all_sessions()
     response = flask.jsonify(collections_sorted)
@@ -280,14 +316,14 @@ def to_number(value):
 def check_ban(identity):
     if identity['role'] != "admin":
         query = {"email": identity['email']}
-        new_query = {"$set": {"password": "Banned", "role": "Banned: /accounts as user"}}
+        new_query = {"$set": {"password": "Banned", "role": "Banned: user is not admin!"}}
         try:
             user.update_one(query, new_query)
-            return jsonify(message="Sign in again please!"), 200
+            return True
         except PyMongoError as err:
             print("Pymongo error code: ", err)
             print("Error while role hacking!!! password can't banned for: ", identity['email'])
-            return jsonify(message="Dont get banned please!"), 422
+            return True
 
 
 def get_all_sessions():
