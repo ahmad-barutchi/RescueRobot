@@ -139,6 +139,7 @@ def mod_user(email):
     name = request.args.get("name")
     role = request.args.get("role")
     password = request.args.get("password")
+    print(password)
     password = generate_password_hash(str(password), method='sha256')
     user_upd_args = {
         "first_name": name,
@@ -149,7 +150,6 @@ def mod_user(email):
     for key, value in user_upd_args.items():
         if value is not None:
             user_upd_items.update({key: value})
-    print(user_upd_items)
     upd = {"$set": user_upd_items}
     user.update_one({"email": email}, upd)
     return "Modified!", 200

@@ -116,7 +116,6 @@ export class HttpInterceptorService implements HttpInterceptor {
       .subscribe((token: NbAuthSimpleToken) => {
         if (token.isValid()) {
           userToken = token.getValue();
-          // console.log(userToken);
         }
       });
 

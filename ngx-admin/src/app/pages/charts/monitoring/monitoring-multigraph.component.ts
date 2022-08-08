@@ -39,7 +39,6 @@ export class MonitoringMultigraphComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit(): void {
-    console.log("monitoring");
     }
 
   public ngAfterViewInit(): void {

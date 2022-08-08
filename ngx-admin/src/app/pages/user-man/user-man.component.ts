@@ -67,20 +67,16 @@ export class UserManComponent {
   onEditConfirm(event): void {
     if (window.confirm('Are you sure you want to edit ' + event['data']['name'] + '\'s name to ' + event['newData']['name'] + '?')) {
       event.confirm.resolve();
-      console.log(event['data']['name']);
-      console.log(event['newData']['name']);
-      console.log(event);
       let url = Setting.baseUrl + 'mod_user/' + event['data']['email'] + '?';
-      if (event['data']['name'] !== ['newData']['name']) {
+      if (event['data']['name'] !== event['newData']['name']) {
         url += "name=" + event['newData']['name'] + '&';
       }
-      if (event['data']['role'] !== ['newData']['role']) {
+      if (event['data']['role'] !== event['newData']['role']) {
         url += "role=" + event['newData']['role'] + '&';
       }
-      if (event['data']['password'] !== ['newData']['password']) {
-        url += "password=" + event['newData']['password'];
+      if (event['data']['mdp'] !== event['newData']['mdp']) {
+        url += "password=" + event['newData']['mdp'];
       }
-      console.log(url);
       // soit url injection avec des slash, soit par parametre comme /accounts?name_like=momo :)
       // !!!!!! Try http protocole Update instead of post
       this.httpClient.put<any>(url, { title: 'User Modified' }).subscribe(

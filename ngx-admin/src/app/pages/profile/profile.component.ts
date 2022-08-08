@@ -50,15 +50,12 @@ export class ProfileComponent implements OnInit {
       },
     );
     /* this.profileService.getProfiles().subscribe((res) => {
-      console.log("got profiles");
     }); */
   }
 
   updateProfile() {
-    console.log('updating profile...');
     this.profile['name'] = this.name.value;
     this.profile['password'] = this.password.value;
     this.profileService.updateProfile(this.user['sub'], this.profile['name'], this.profile['password']);
-    console.log('updated profile: ', this.profile);
   }
 }
