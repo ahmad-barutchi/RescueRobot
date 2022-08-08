@@ -248,7 +248,7 @@ def all_sessions_man():
     identity = get_jwt_identity()
     res = check_ban(identity)
     if res:
-        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
+        return jsonify(message="Not authorized! Please sign in again, and take contact with administration btw."), 422
     session_name = request.args.get('name_like')
     collections_sorted = get_all_sessions()
     if session_name is not None:
