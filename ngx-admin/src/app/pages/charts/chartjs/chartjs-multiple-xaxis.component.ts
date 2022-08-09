@@ -29,9 +29,6 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
         {headers: new HttpHeaders({'Access-Control-Allow-Origin': Setting.baseUrl, 'Access-Control-Allow-Headers': '*'})}).subscribe(
         temps => {
           this.temps = temps;
-          console.log('first temps: ', this.temps[0]['temp']);
-          console.log('first temps: ', this.temps[6]);
-          console.log('after method: ', this.temps[0]['temp']);
           this.temp = this.temps[0]['temp'];
           this.data = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June'],

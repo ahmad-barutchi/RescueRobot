@@ -67,8 +67,8 @@ try:
         minutes = tm[14:16]
         seconds = tm[17:19]
         print(year, month, date, hour, minutes, seconds)
-        if pieces[4] == 'y' or pieces[5] == 'y':
-            origin = "Human" if pieces[4] == 'y' else "Fire"
+        if pieces[5] == 'y' or pieces[6] == 'y':
+            origin = "Human" if pieces[5] == 'y' else "Fire"
         else:
             origin = "None"
         frame = {
@@ -81,10 +81,11 @@ try:
             "datetime": year + '/' + month + '/' + date + ' ' + hour + ':' + minutes + ':' + seconds,
             "temp": pieces[0],
             "temp2": pieces[1],
-            "humidity": pieces[2],
-            "pos": pieces[3],
-            "human": pieces[4],
-            "fire": pieces[5],
+            "ambTemp": pieces[2],
+            "humidity": pieces[3],
+            "pos": pieces[4],
+            "human": pieces[5],
+            "fire": pieces[6],
             "origin": origin
         }
         # Here we are going to insert the data into the Database

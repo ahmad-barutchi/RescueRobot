@@ -139,6 +139,7 @@ def mod_user(email):
     name = request.args.get("name")
     role = request.args.get("role")
     password = request.args.get("password")
+    print(password)
     password = generate_password_hash(str(password), method='sha256')
     user_upd_args = {
         "first_name": name,
@@ -149,7 +150,6 @@ def mod_user(email):
     for key, value in user_upd_args.items():
         if value is not None:
             user_upd_items.update({key: value})
-    print(user_upd_items)
     upd = {"$set": user_upd_items}
     user.update_one({"email": email}, upd)
     return "Modified!", 200
@@ -248,7 +248,7 @@ def all_sessions_man():
     identity = get_jwt_identity()
     res = check_ban(identity)
     if res:
-        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
+        return jsonify(message="Not authorized! Please sign in again, and take contact with administration btw."), 422
     session_name = request.args.get('name_like')
     collections_sorted = get_all_sessions()
     if session_name is not None:
