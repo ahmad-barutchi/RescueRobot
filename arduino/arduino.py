@@ -25,17 +25,17 @@ db = conn.RobotData
 collections = []
 collection = db.collection_names(include_system_collections=False)
 if not collection:
-    collection = db["Seance1"]
+    coll = "Seance1"
     print("Seance1 created")
 else:
     for col in collection:
         col = col[6:]
         collections.append(int(col))
     print(collections)
-next_session = int(max(collections)) + 1
-next_session = str(next_session)
-coll = "Seance" + next_session
-print("collection on MongoDB: ", coll)
+    next_session = int(max(collections)) + 1
+    next_session = str(next_session)
+    coll = "Seance" + next_session
+    print("collection on MongoDB: ", coll)
 
 collection_db = db[coll]
 frame = {}

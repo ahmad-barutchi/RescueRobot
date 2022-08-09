@@ -15,7 +15,11 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
   options: any;
   themeSubscription: any;
   public temps: Array<string> = [];
+  public temps2: Array<string> = [];
+  public ambTemp: Array<string> = [];
   public temp: any;
+  public session: string = JSON.parse(localStorage.getItem("session"));
+
 
   constructor(private theme: NbThemeService,
   private httpClient: HttpClient,
@@ -24,17 +28,24 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
 
       const colors: any = config.variables;
       const chartjs: any = config.variables.chartjs;
-      this.getTemps();
-      this.httpClient.get<any>(Setting.baseUrl + 'get-temp',
+      // this.getTemps();
+      this.httpClient.get<any>(Setting.baseUrl + 'get-seance/'  + this.session,
         {headers: new HttpHeaders({'Access-Control-Allow-Origin': Setting.baseUrl, 'Access-Control-Allow-Headers': '*'})}).subscribe(
         temps => {
-          this.temps = temps;
-          this.temp = this.temps[0]['temp'];
+          for (const temp of temps) {
+            this.temps.push(temp['temp']);
+          }
+          for (const temp2 of temps) {
+            this.temps2.push(temp2['temp2']);
+          }
+          for (const ambTemp of temps) {
+            this.ambTemp.push(ambTemp['ambTemp']);
+          }
           this.data = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June'],
             datasets: [{
               label: 'dataset - big points',
-              data: [this.temp, this.random(), this.random(), this.random(), this.random(), this.random()],
+              data: this.temps,
               borderColor: colors.primary,
               backgroundColor: colors.primary,
               fill: false,
@@ -43,7 +54,7 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
               pointHoverRadius: 10,
             }, {
               label: 'dataset - individual point sizes',
-              data: [this.random(), this.random(), this.random(), this.random(), this.random(), this.random()],
+              data: this.temps2,
               borderColor: colors.dangerLight,
               backgroundColor: colors.dangerLight,
               fill: false,
@@ -52,7 +63,7 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
               pointHoverRadius: 10,
             }, {
               label: 'dataset - large pointHoverRadius',
-              data: [this.random(), this.random(), this.random(), this.random(), this.random(), this.random()],
+              data: this.ambTemp,
               borderColor: colors.info,
               backgroundColor: colors.info,
               fill: false,
@@ -65,7 +76,7 @@ export class ChartjsMultipleXaxisComponent implements OnDestroy {
 
       this.options = {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
         legend: {
           position: 'bottom',
           labels: {

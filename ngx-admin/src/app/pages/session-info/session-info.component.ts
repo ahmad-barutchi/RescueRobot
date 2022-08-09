@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {LocalDataSource, ServerDataSource} from 'ng2-smart-table';
+import {ServerDataSource} from 'ng2-smart-table';
 import {HttpClient} from "@angular/common/http";
 import {Setting} from "../../setting";
 
@@ -39,15 +39,19 @@ export class SessionInfoComponent {
         type: 'string',
       },
       temp: {
-        title: 'Temperature',
-        type: 'string',
+        title: 'Front temp',
+        type: 'number',
       },
       temp2: {
-        title: 'Temperature arrière',
-        type: 'string',
+        title: 'Rear Temp',
+        type: 'number',
+      },
+      ambTemp: {
+        title: 'Ambient temp',
+        type: 'number',
       },
       humidity: {
-        title: 'Humidité',
+        title: 'Humidity',
         type: 'number',
       },
     },
@@ -56,7 +60,6 @@ export class SessionInfoComponent {
   public session: string;
   public session_name: string;
   source: ServerDataSource;
-  private domSanitizer: any;
 
   constructor(private httpClient: HttpClient) {
     this.session = JSON.parse(localStorage.getItem("session"));

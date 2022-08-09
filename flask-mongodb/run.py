@@ -1,6 +1,6 @@
 import datetime
 import flask
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure, PyMongoError
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -38,7 +38,6 @@ def register():
     else:
         first_name = request.json["fullName"]
         password = request.json["password"]
-        print(password)
         user_info = dict(first_name=first_name, email=email, role=role,
                          password=generate_password_hash(password, method='sha256'))
         user.insert_one(user_info)
@@ -100,7 +99,6 @@ def get_profiles():
     for key, value in user_search_args.items():
         if value is not None:
             user_search_items.update({key: {"$regex": value}})
-    print(user_search_items)
     upd = {"$set": user_search_items}
     profiles = []
     users = user.find(user_search_items)
@@ -139,7 +137,6 @@ def mod_user(email):
     name = request.args.get("name")
     role = request.args.get("role")
     password = request.args.get("password")
-    print(password)
     password = generate_password_hash(str(password), method='sha256')
     user_upd_args = {
         "first_name": name,
@@ -185,10 +182,12 @@ def get_seance(seance_id):
         preset = {
             "temp": float(record["temp"]),
             "temp2": float(record["temp2"]),
+            "ambTemp": float(record["ambTemp"]),
             "humidity": float(record["humidity"]),
             "pos": record["pos"],
             "human": record["human"],
             "fire": record["fire"],
+            "origin": record["origin"],
             "year": record["year"],
             "month": record["month"],
             "date": record["date"],
@@ -206,6 +205,7 @@ def get_seance(seance_id):
 def get_session_info(seance_id):
     temp = request.args.get('temp_like')
     temp2 = request.args.get('temp2_like')
+    amb_temp = request.args.get('ambTemp_like')
     humidity = request.args.get('humidity_like')
     origin = request.args.get('origin_like')
     date = request.args.get('date_like')
@@ -213,9 +213,10 @@ def get_session_info(seance_id):
     session_info_args = {
         "temp": temp,
         "temp2": temp2,
+        "ambTemp": amb_temp,
         "humidity": humidity,
         "origin": origin,
-        "date": date,
+        "datetime": date,
         "pos": pos,
     }
     session_info_items = {}
@@ -226,14 +227,15 @@ def get_session_info(seance_id):
     cursor = collection.find(session_info_items)
     presets = []
     for record in cursor:
-        if record["human"] == 'y' or record["fire"] == 'y':
-            origin = "Human" if record["human"] == 'y' else "Fire"
+        if record["origin"] == "None":
+            record["origin"] = None
+        if record["origin"] is not None:
             preset = {
-                "origin": origin,
-                "date": record["year"] + '/' + record["month"] + '/' + record["date"] + ' '
-                + record["hour"] + ':' + record["minutes"] + ':' + record["seconds"],
+                "origin": record["origin"],
+                "date": record["datetime"],
                 "temp": float(record["temp"]),
                 "temp2": float(record["temp2"]),
+                "ambTemp": float(record["ambTemp"]),
                 "humidity": float(record["humidity"]),
                 "pos": record["pos"],
             }
@@ -263,10 +265,8 @@ def all_sessions_man():
             end = end_cursor_item
         preset = {
             "name": col,
-            "start": start["year"] + '/' + start["month"] + '/' + start["date"] + ' '
-            + start["hour"] + ':' + start["minutes"] + ':' + start["seconds"],
-            "end": end["year"] + '/' + end["month"] + '/' + end["date"] + ' '
-            + end["hour"] + ':' + end["minutes"] + ':' + end["seconds"]
+            "start": start["datetime"],
+            "end": end["datetime"]
         }
         presets.append(preset)
 

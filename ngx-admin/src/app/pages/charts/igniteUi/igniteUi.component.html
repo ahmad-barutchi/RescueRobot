@@ -3,10 +3,11 @@
     <label id="legendTitle">Temps and humidity: </label>
   </div>
 
-  <igx-financial-chart height="550px" width="100%"
+  <igx-financial-chart height="700px" width="100%"
+                       [brushes]="brushes"
                        [dataSource]="data"
                        chartType="line"
-                       thickness=2
+                       thickness=3
                        yAxisTitle="Temperature en °C et humidité en %"
                        xAxisTitle="Temps ecoulé (Central European Summer Time)">
   </igx-financial-chart>
