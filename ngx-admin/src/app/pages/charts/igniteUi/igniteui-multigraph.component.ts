@@ -3,6 +3,7 @@ import { RobotDataService } from "./RobotDataService";
 import { HttpClient } from "@angular/common/http";
 import {timer} from "rxjs";
 import {tap} from "rxjs/operators";
+import {Router} from "@angular/router";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,7 +14,7 @@ import {tap} from "rxjs/operators";
 })
 
 export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
-  public data: any = [];
+  public data: Array<any> = [];
   public records: any;
   public temp_title: any;
   public temp2_title: any;
@@ -30,11 +31,18 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
   fireDisplay: any[] = [];
   public human: number;
   public fire: number;
-  public brushes: string[];
+  public brushes: Array<any>;
 
+  public series: Array<any> = [];
   call_timer: any;
+  private toggle_temp_bool: boolean = true;
+  private toggle_temp2_bool: boolean = true;
+  private toggle_ambTemp_bool: boolean = true;
+  private toggle_humidity_bool: boolean = true;
+  private toggle_human_bool: boolean = true;
+  private toggle_fire_bool: boolean = true;
 
-  constructor(private dataService: RobotDataService, private ref: ChangeDetectorRef) {
+  constructor(private dataService: RobotDataService, private ref: ChangeDetectorRef, private router: Router) {
     this.brushes = ["Orange", "Black", "Green", "Blue", "Red", "Purple"];
     // this.brushes = ["DarkOrange", "White", " #26c6da", "Blue", "#FF0000", "#32CD32"];
   }
@@ -48,97 +56,177 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
       .pipe(
         tap(() => {
           this.dataService.getTemps().subscribe(response => {
-          this.records = response.map(item => {
-          let lat: string = item['pos'];
-          let long: string = item['pos'];
-          lat = lat.substr(0, 9);
-          long = long.substr(10, 16);
-          const intLat: number = Number(lat);
-          const intLong: number = Number(long);
-          if (item['origin'] === "None") {
-            this.human = 0;
-            this.fire = 0;
-          } else if (item['origin'] === "Human") {
-            this.human = 50;
-            this.fire = 0;
-          } else {
-            this.human = 0;
-            this.fire = 50;
-          }
-          const temp: any = {
-            time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
-            open: item['temp'],
-            high: intLat,
-            low: intLong,
-            close: item['temp'],
-            volume: 'a',
-          };
-          const temp2: any = {
-            time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
-            open: item['temp2'],
-            high: intLat,
-            low: intLong,
-            close: item['temp2'],
-            volume: 'a',
-          };
-          const ambTemp: any = {
-            time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
-            open: item['ambTemp'],
-            high: intLat,
-            low: intLong,
-            close: item['ambTemp'],
-            volume: 'a',
-          };
-          const humidity: any = {
-            time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
-            open: item['humidity'],
-            high: intLat,
-            low: intLong,
-            close: item['humidity'],
-            volume: 'a',
-          };
-          const human: any = {
-            time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
-            open: this.human,
-            high: intLat,
-            low: intLong,
-            close: this.human,
-            volume: 'a',
-          };
-          const fire: any = {
-            time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
-            open: this.fire,
-            high: intLat,
-            low: intLong,
-            close: this.fire,
-            volume: 'a',
-          };
-          this.tempDisplay.push(temp);
-          this.temp2Display.push(temp2);
-          this.ambTempDisplay.push(ambTemp);
-          this.humidityDisplay.push(humidity);
-          this.humanDisplay.push(human);
-          this.fireDisplay.push(fire);
-        });
-        this.temp_title = this.tempDisplay;
-        this.temp_title.title = 'temp';
-        this.temp2_title = this.temp2Display;
-        this.temp2_title.title = 'temp2';
-        this.ambTemp_title = this.ambTempDisplay;
-        this.ambTemp_title.title = 'ambTemp';
-        this.humidity_title = this.humidityDisplay;
-        this.humidity_title.title = 'humidity';
-        this.human_title = this.humanDisplay;
-        this.human_title.title = 'human';
-        this.fire_title = this.fireDisplay;
-        this.fire_title.title = 'fire';
-        this.data = [ this.tempDisplay, this.temp2Display, this.ambTempDisplay, this.humidityDisplay, this.humanDisplay, this.fireDisplay ];
-        this.ref.markForCheck();
-        });
-      })).subscribe();
+            this.records = response.map(item => {
+              let lat: string = item['pos'];
+              let long: string = item['pos'];
+              lat = lat.substr(0, 9);
+              long = long.substr(10, 16);
+              const intLat: number = Number(lat);
+              const intLong: number = Number(long);
+              const temp: any = {
+                time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
+                open: item['temp'],
+                high: intLat,
+                low: intLong,
+                close: item['temp'],
+                volume: 'a',
+              };
+              const temp2: any = {
+                time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
+                open: item['temp2'],
+                high: intLat,
+                low: intLong,
+                close: item['temp2'],
+                volume: 'a',
+              };
+              const ambTemp: any = {
+                time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
+                open: item['ambTemp'],
+                high: intLat,
+                low: intLong,
+                close: item['ambTemp'],
+                volume: 'a',
+              };
+              const humidity: any = {
+                time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
+                open: item['humidity'],
+                high: intLat,
+                low: intLong,
+                close: item['humidity'],
+                volume: 'a',
+              };
+              const human: any = {
+                time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
+                open: item['humanProb'],
+                high: intLat,
+                low: intLong,
+                close: item['humanProb'],
+                volume: 'a',
+              };
+              const fire: any = {
+                time: new Date(item['year'], item['month'], item['date'], item['hour'], item['minutes'], item['seconds']),
+                open: item['fireProb'],
+                high: intLat,
+                low: intLong,
+                close: item['fireProb'],
+                volume: 'a',
+              };
+              this.tempDisplay.push(temp);
+              this.temp2Display.push(temp2);
+              this.ambTempDisplay.push(ambTemp);
+              this.humidityDisplay.push(humidity);
+              this.humanDisplay.push(human);
+              this.fireDisplay.push(fire);
+            });
+            this.temp_title = this.tempDisplay;
+            this.temp_title.title = 'temp';
+            this.temp2_title = this.temp2Display;
+            this.temp2_title.title = 'temp2';
+            this.ambTemp_title = this.ambTempDisplay;
+            this.ambTemp_title.title = 'ambTemp';
+            this.humidity_title = this.humidityDisplay;
+            this.humidity_title.title = 'humidity';
+            this.human_title = this.humanDisplay;
+            this.human_title.title = 'human';
+            this.fire_title = this.fireDisplay;
+            this.fire_title.title = 'fire';
+            this.series.push(this.humidityDisplay);
+            this.series.push(this.temp2Display);
+            this.data = [this.tempDisplay, this.temp2Display, this.ambTempDisplay, this.humidityDisplay, this.humanDisplay, this.fireDisplay ];
+            // this.data = this.series;
+            this.ref.markForCheck();
+          });
+        })).subscribe();
   }
 
   ngOnDestroy(): void {
     // clearInterval(this.call_timer);
+  }
+
+  reloadComponent() {
+    const currentUrl = this.router.url;
+    this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
+      this.router.navigate([currentUrl]);
+    });
+  }
+
+  toggleTempOn() {
+    /* console.log(this.data);
+    console.log("pushed");
+    this.data[5] = this.tempDisplay;
+    this.brushes[5] = "Brown";
+    console.log(this.data);
+    this.ref.markForCheck(); */
+    this.reloadComponent();
+  }
+
+  toggleTempOFF() {
+    if (this.toggle_temp_bool) {
+      const index = this.data.findIndex(x => x === this.tempDisplay);
+      console.log(index);
+      this.data = this.data.filter(item => item !== this.data[0]);
+      this.brushes = this.brushes.filter(item => item !== this.brushes[0]);
+    }
+    this.toggle_temp_bool = false;
+    this.ref.markForCheck();
+  }
+
+  toggleTemp2OFF() {
+    const index = this.data.findIndex(x => x === this.temp2Display);
+    console.log(index);
+    if (this.toggle_temp2_bool) {
+      this.data = this.data.filter(item => item !== this.data[index]);
+      this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
+    }
+    this.toggle_temp2_bool = false;
+    this.ref.markForCheck();
+  }
+
+  toggleAmbTempOFF() {
+    const index = this.data.findIndex(x => x === this.ambTempDisplay);
+    console.log(index);
+    if (this.toggle_ambTemp_bool) {
+      this.data = this.data.filter(item => item !== this.data[index]);
+      this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
+    }
+    this.toggle_ambTemp_bool = false;
+    this.ref.markForCheck();
+  }
+
+  toggleHumidityOFF() {
+    const index = this.data.findIndex(x => x === this.humidityDisplay);
+    console.log(index);
+    if (this.toggle_humidity_bool) {
+      this.data = this.data.filter(item => item !== this.data[index]);
+      this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
+    }
+    this.toggle_humidity_bool = false;
+    this.ref.markForCheck();
+  }
+
+  toggleHumanOFF() {
+    const index = this.data.findIndex(x => x === this.humanDisplay);
+    console.log(index);
+    if (this.toggle_human_bool) {
+      this.data = this.data.filter(item => item !== this.data[index]);
+      this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
+    }
+    this.toggle_human_bool = false;
+    this.ref.markForCheck();
+  }
+
+  toggleFireOFF() {
+    const index = this.data.findIndex(x => x === this.fireDisplay);
+    console.log(index);
+    if (this.toggle_fire_bool) {
+      this.data = this.data.filter(item => item !== this.data[index]);
+      this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
+    }
+    this.toggle_fire_bool = false;
+    this.ref.markForCheck();
+  }
+
+  render() {
+    this.reloadComponent();
   }
 }

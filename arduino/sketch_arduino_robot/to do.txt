@@ -1,0 +1,1 @@
+- Delete some Serial.print() from get_direction()

@@ -30,6 +30,7 @@ import { EchartsBarAnimationComponent } from './echarts/echarts-bar-animation.co
 import { EchartsRadarComponent } from './echarts/echarts-radar.component';
 import { IgxFinancialChartModule, IgxLegendModule } from 'igniteui-angular-charts';
 import { RobotDataService } from './monitoring/RobotDataService';
+import {MatButtonModule} from '@angular/material/button';
 
 const components = [
   ChartjsBarComponent,
@@ -65,6 +66,7 @@ const components = [
     NbCardModule,
     IgxFinancialChartModule,
     IgxLegendModule,
+    MatButtonModule,
   ],
   providers: [RobotDataService],
   declarations: [...routedComponents, ...components],

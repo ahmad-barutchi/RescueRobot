@@ -185,6 +185,8 @@ def get_seance(seance_id):
             "ambTemp": float(record["ambTemp"]),
             "humidity": float(record["humidity"]),
             "pos": record["pos"],
+            "humanProb": float(record["humanProb"]),
+            "fireProb": float(record["fireProb"]),
             "human": record["human"],
             "fire": record["fire"],
             "origin": record["origin"],
@@ -207,6 +209,8 @@ def get_session_info(seance_id):
     temp2 = request.args.get('temp2_like')
     amb_temp = request.args.get('ambTemp_like')
     humidity = request.args.get('humidity_like')
+    human_prob = request.args.get('humanProb_like')
+    humidity = request.args.get('humidity_like')
     origin = request.args.get('origin_like')
     date = request.args.get('date_like')
     pos = request.args.get('pos_like')
@@ -215,6 +219,8 @@ def get_session_info(seance_id):
         "temp2": temp2,
         "ambTemp": amb_temp,
         "humidity": humidity,
+        "humanProb": humidity,
+        "fireProb": humidity,
         "origin": origin,
         "datetime": date,
         "pos": pos,
@@ -237,6 +243,8 @@ def get_session_info(seance_id):
                 "temp2": float(record["temp2"]),
                 "ambTemp": float(record["ambTemp"]),
                 "humidity": float(record["humidity"]),
+                "humanProb": float(record["humanProb"]),
+                "fireProb": float(record["fireProb"]),
                 "pos": record["pos"],
             }
             presets.append(preset)

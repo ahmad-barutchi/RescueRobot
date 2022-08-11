@@ -3,7 +3,30 @@
     <label id="legendTitle">Temps and humidity: </label>
   </div>
 
-  <igx-financial-chart height="700px" width="100%"
+
+  <button mat-button style="background: orange" (click)="toggleTempOFF()" value="Toggle Button 2">
+    Head temp OFF
+  </button>&nbsp;
+  <button mat-button style="background: black; color:white;" (click)="toggleTemp2OFF()" value="Toggle Button 1">
+    REAR temp OFF
+  </button>&nbsp;
+  <button mat-button style="background: Green" (click)="toggleAmbTempOFF()" value="Toggle Button 1">
+    Ambiante temperature OFF
+  </button>&nbsp;
+  <button mat-button style="background: Blue" (click)="toggleHumidityOFF()" value="Toggle Button 1">
+    Humidity OFF
+  </button>&nbsp;
+  <button mat-button style="background: Red" (click)="toggleHumanOFF()" value="Toggle Button 1">
+    Human probability OFF
+  </button>&nbsp;
+  <button mat-button style="background: Purple" (click)="toggleFireOFF()" value="Toggle Button 1">
+    Fire probability OFF
+  </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+  <button mat-button (click)="render()" value="Toggle Button 1">
+    Show all series
+  </button>
+  <igx-financial-chart height="600px" width="100%"
                        [brushes]="brushes"
                        [dataSource]="data"
                        chartType="line"

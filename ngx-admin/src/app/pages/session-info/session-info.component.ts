@@ -54,6 +54,14 @@ export class SessionInfoComponent {
         title: 'Humidity',
         type: 'number',
       },
+      humanProb: {
+        title: 'Human Prob',
+        type: 'number',
+      },
+      fireProb: {
+        title: 'Fire Prob',
+        type: 'number',
+      },
     },
   };
 

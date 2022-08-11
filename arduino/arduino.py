@@ -53,7 +53,6 @@ try:
         data = data[0:-2]
         data = data.decode('ascii')
         pieces = data.split(" ")  # split the data by the space
-        print(len(pieces))
         print(pieces)
         if (None or '') in pieces or len(pieces) < 6:
             print("corrupted data!!!!!!!!")
@@ -67,8 +66,8 @@ try:
         minutes = tm[14:16]
         seconds = tm[17:19]
         print(year, month, date, hour, minutes, seconds)
-        if pieces[5] == 'y' or pieces[6] == 'y':
-            origin = "Human" if pieces[5] == 'y' else "Fire"
+        if pieces[7] == 'y' or pieces[8] == 'y':
+            origin = "Human" if pieces[7] == 'y' else "Fire"
         else:
             origin = "None"
         frame = {
@@ -84,8 +83,10 @@ try:
             "ambTemp": pieces[2],
             "humidity": pieces[3],
             "pos": pieces[4],
-            "human": pieces[5],
-            "fire": pieces[6],
+            "humanProb": pieces[5],
+            "fireProb": pieces[6],
+            "human": pieces[7],
+            "fire": pieces[8],
             "origin": origin
         }
         # Here we are going to insert the data into the Database

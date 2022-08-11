@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {ServerDataSource} from 'ng2-smart-table';
 import {HttpClient} from "@angular/common/http";
 import {Setting} from "../../setting";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'ngx-session-man',
@@ -44,7 +45,7 @@ export class SessionsManComponent {
   };
   source: ServerDataSource;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private router: Router) {
     this.source = new ServerDataSource(this.httpClient, {endPoint: Setting.baseUrl + 'all_sessions_man'});
   }
 
@@ -53,18 +54,27 @@ export class SessionsManComponent {
       event.confirm.resolve();
       this.httpClient.delete<any>(Setting.baseUrl + 'del-seance/' + event['data']['name']).subscribe(
         temps => {});
+      this.reloadComponent();
     } else {
       event.confirm.reject();
     }
   }
 
   onEditConfirm(event): void {
-    if (window.confirm('Are you sure you want to edit ' + event['data']['name'] + '\'s name to ' + event['newData']['name'] + '?')) {
+    if (window.confirm('Are you sure you want to edit ' + event['data']['name'] + '?')) {
       event.confirm.resolve();
       this.httpClient.post<any>(Setting.baseUrl + 'mod-seance/' + event['data']['name'] + '/' + event['newData']['name'], { title: 'Session Modified' }).subscribe(
         temps => {});
+      this.reloadComponent();
     } else {
       event.confirm.reject();
     }
+  }
+
+  reloadComponent() {
+    const currentUrl = this.router.url;
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = 'reload';
+    this.router.navigate([currentUrl]);
   }
 }
