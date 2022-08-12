@@ -1,11 +1,14 @@
 import datetime
 import flask
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure, PyMongoError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+import re
 
+# DATABASE
+# connection to database server (MongoDB) [PORT=27017(DEFAULT), HOST=localhost]
 try:
     conn = MongoClient("localhost", 27017)
     print("Connected successfully to mongoDB!!!")
@@ -13,21 +16,38 @@ except OperationFailure as e:
     conn = ""
     print("Could not connect to MongoDB")
 
-
-app = Flask(__name__)
-app.config['JSON_SORT_KEYS'] = False
-jwt = JWTManager(app)
-
-# JWT Config
-app.config["JWT_SECRET_KEY"] = "AXenN65T!lfe44deoJR"
-# Pymongo database and collection
+# Pymongo connection to database and collection
 db = conn.app_database
 user = db["User"]
+
+# Initiate Flask application
+app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
+
+# Json web token (JWT)
+jwt = JWTManager(app)
+app.config["JWT_SECRET_KEY"] = "AXenN65T!lfe44deoJR"
+
+# Regular expressions for injection security
+email_regex = '^[a-z0-9]+[\\._]?[a-z0-9]+[@]\\w+[.]\\w{2,3}$'
+password_regex = r'[A-Za-z0-9@#$%^&+=]{4,}'  # set last 4 to 8 for 8 char
 
 
 @app.route("/register", methods=["POST"])
 def register():
+    """
+    Method to signup a user, this method receive the request body with the ``email, first_name, password``
+    then check regex of body request variables, after that pymongo check if email exists and returns
+    http status code 409 if that's the case.
+    Else it will hash the password with sha512, and insert user data into the database, create token identity
+    with [email, role] parameters, and return JSON object with message and token as response with hhtp status code 201
+
+    :return:
+        The message and token encoded as JSON with http status code 201 as Flask response.
+    """
     email = request.json['email']
+    if check_email_reg(email):
+        return jsonify(message="Please respect email regex!"), 403
     admin = user.find_one()
     role = "user"
     if not admin:
@@ -38,8 +58,10 @@ def register():
     else:
         first_name = request.json["fullName"]
         password = request.json["password"]
+        if check_password_reg(password):
+            return jsonify(message="Please respect password regex!"), 403
         user_info = dict(first_name=first_name, email=email, role=role,
-                         password=generate_password_hash(password, method='sha256'))
+                         password=generate_password_hash(password, method='sha512'))
         user.insert_one(user_info)
         identity = {"email": email, "role": role}
         token = create_access_token(identity=identity, fresh=False, expires_delta=datetime.timedelta(minutes=540))
@@ -84,6 +106,7 @@ def get_profile(email):
 @jwt_required()
 def get_profiles():
     identity = get_jwt_identity()
+    print(identity)
     res = check_ban(identity)
     if res:
         return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
@@ -99,7 +122,6 @@ def get_profiles():
     for key, value in user_search_args.items():
         if value is not None:
             user_search_items.update({key: {"$regex": value}})
-    upd = {"$set": user_search_items}
     profiles = []
     users = user.find(user_search_items)
     for user_info in users:
@@ -113,7 +135,7 @@ def get_profiles():
         profiles.append(profile)
 
     response = flask.jsonify(profiles)
-    return response
+    return response, 200
 
 
 @app.route("/del_user/<email>", methods=['DELETE'])
@@ -137,7 +159,8 @@ def mod_user(email):
     name = request.args.get("name")
     role = request.args.get("role")
     password = request.args.get("password")
-    password = generate_password_hash(str(password), method='sha256')
+    if password is not None:
+        password = generate_password_hash(str(password), method='sha512')
     user_upd_args = {
         "first_name": name,
         "role": role,
@@ -158,7 +181,7 @@ def update_password():
     identity = get_jwt_identity()
     password = request.json["password"]
     query = {"email": identity['email']}
-    new_query = {"$set": {"password": generate_password_hash(password, method='sha256')}}
+    new_query = {"$set": {"password": generate_password_hash(password, method='sha512')}}
     try:
         user.update_one(query, new_query)
         return jsonify(message="Password updated"), 200
@@ -210,7 +233,7 @@ def get_session_info(seance_id):
     amb_temp = request.args.get('ambTemp_like')
     humidity = request.args.get('humidity_like')
     human_prob = request.args.get('humanProb_like')
-    humidity = request.args.get('humidity_like')
+    fire_prob = request.args.get('fireProb_like')
     origin = request.args.get('origin_like')
     date = request.args.get('date_like')
     pos = request.args.get('pos_like')
@@ -219,8 +242,8 @@ def get_session_info(seance_id):
         "temp2": temp2,
         "ambTemp": amb_temp,
         "humidity": humidity,
-        "humanProb": humidity,
-        "fireProb": humidity,
+        "humanProb": human_prob,
+        "fireProb": fire_prob,
         "origin": origin,
         "datetime": date,
         "pos": pos,
@@ -345,6 +368,20 @@ def get_all_sessions():
     for col in collections:
         collections_sorted.append("Seance" + str(col))
     return collections_sorted
+
+
+def check_email_reg(email):
+    if re.search(email_regex, email):
+        return False
+    else:
+        return True
+
+
+def check_password_reg(password):
+    if re.fullmatch(password_regex, password):
+        return False
+    else:
+        return True
 
 
 if __name__ == "__main__":
