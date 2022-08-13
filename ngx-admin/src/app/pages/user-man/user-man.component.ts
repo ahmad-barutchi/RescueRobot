@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {LocalDataSource, ServerDataSource} from 'ng2-smart-table';
 import {HttpClient} from "@angular/common/http";
 import {Setting} from "../../setting";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'ngx-user-man',
@@ -50,7 +51,7 @@ export class UserManComponent {
   public session: string;
   source: ServerDataSource;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private router: Router) {
     this.source = new ServerDataSource(this.httpClient, {searchFields: 'temp', endPoint: Setting.baseUrl + 'accounts'});
   }
 
@@ -59,6 +60,7 @@ export class UserManComponent {
       event.confirm.resolve();
       this.httpClient.delete<any>(Setting.baseUrl + 'del_user/' + event['data']['email']).subscribe(
         res => {});
+      this.reloadComponent();
     } else {
       event.confirm.reject();
     }
@@ -77,12 +79,17 @@ export class UserManComponent {
       if (event['data']['mdp'] !== event['newData']['mdp']) {
         url += "password=" + event['newData']['mdp'];
       }
-      // soit url injection avec des slash, soit par parametre comme /accounts?name_like=momo :)
-      // !!!!!! Try http protocole Update instead of post
       this.httpClient.put<any>(url, { title: 'User Modified' }).subscribe(
         temps => {});
+      this.reloadComponent();
     } else {
       event.confirm.reject();
     }
+  }
+  reloadComponent() {
+    const currentUrl = this.router.url;
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = 'reload';
+    this.router.navigate([currentUrl]);
   }
 }

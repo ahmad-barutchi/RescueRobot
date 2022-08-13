@@ -9,7 +9,7 @@ import {Setting} from "../../../setting";
 export class RobotDataService {
   @Input() data: string[];
   public session: string = JSON.parse(localStorage.getItem("session"));
-  private url = Setting.baseUrl + 'get-seance/'  + this.session;
+  private url = Setting.baseUrl + 'get_seance/'  + this.session;
 
   constructor(private httpClient: HttpClient) {}
 

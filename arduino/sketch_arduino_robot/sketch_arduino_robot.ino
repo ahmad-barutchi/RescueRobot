@@ -89,9 +89,9 @@ int gpsLongr;
 float humidity = 40.0;
 float lastHumidity = 40.0;
 float ambTemp = 25.0;
+float lastAmbTemp = 25.0;
 
 // Human and Fire variables
-float lastAmbTemp = 25.0;
 float human_temp_prob = 0.0;
 float fire_temp_prob = 0.0;
 float human_min_temp = 29.0;
@@ -269,52 +269,53 @@ void get_state(float temp_head, float temp_rear, float humidity){
         human_temp_prob = map(temp_head, min_global_temp, human_min_temp, 0.1, 30.0);
         human_temp_prob += map(temp_rear, min_global_temp, human_min_temp, 0.1, 30.0);
         human_temp_prob = human_temp_prob / 2.0;
-        // Mathematically: human_prob = (0->30) * (1/100->100/100) = 0-30%  MinValue= 0.1*1/100 = 0.001, MaxValue = 30*1
+        // Mathematically: human_prob = (0->30) * (1/100->100/100) = 0-30%  MinValue= 0*0/100 = 0, MaxValue = 30*1
         human_prob = human_temp_prob * humidity / 100.0;
         human_detected = false;
         fire_detected = false;
     }
 
+    // Fire detected case
+    else if(temp_head > human_max_temp || temp_rear > human_max_temp) {
+        if (temp_head > temp_rear) {
+            fire_temp_prob = map(temp_head, fire_min_temp, fire_max_temp, 50.0, 100.0);
+        } else {
+            fire_temp_prob = map(temp_rear, fire_min_temp, fire_max_temp, 50.0, 100.0);
+        }
+        humidity = map(humidity, 1.0, 100.0, 100.0, 1.0);
+        // Mathematically: fire_prob = (50->100) * (100/100->1/100) = 50-100%, Min_value=50*1= 50%, Max_value=100*1= 100%
+        fire_prob = fire_temp_prob * humidity /100.0;
+        
+        if (fire_prob > 30.0){
+            analogWrite(BeeperPin, 255);
+            delay(159);
+            analogWrite(BeeperPin, 0);
+            fire_detected = true;
+        }
+    }
+
     // Human detected case
-    else if ((temp_head > human_min_temp && temp_head < human_max_temp) || (temp_rear > human_min_temp && temp_rear < human_max_temp)){
+    else {
         if (temp_head > temp_rear) {
             if (temp_head < human_mid_temp){
-                human_temp_prob = map(temp_head, human_min_temp, human_mid_temp, 90.0, 100.0);
+                human_temp_prob = map(temp_head, human_min_temp, human_mid_temp, 50.0, 100.0);
             } else {
-                human_temp_prob = map(temp_head, human_mid_temp, human_max_temp, 100.0, 90.0);
+                human_temp_prob = map(temp_head, human_mid_temp, human_max_temp, 100.0, 50.0);
             }
         } else {
             if (temp_rear < human_mid_temp){
-                human_temp_prob = map(temp_rear, human_min_temp, human_mid_temp, 90.0, 100.0);
+                human_temp_prob = map(temp_rear, human_min_temp, human_mid_temp, 50.0, 100.0);
             } else {
-                human_temp_prob = map(temp_rear, human_mid_temp, human_max_temp, 100.0, 90.0);
+                human_temp_prob = map(temp_rear, human_mid_temp, human_max_temp, 100.0, 50.0);
             }
         }
-        // Mathematically: human_prob = (90->100) * (10/100->100/100) = 9-100%
+        // Mathematically: human_prob = (50->100) * (1/100->100/100) = 50-100%, Min_value=50*1= 50%, Max_value=100*1= 100%
         human_prob = human_temp_prob * humidity / 100.0;
-        if (human_prob > 40.0){
+        if (human_prob > 30.0){
             analogWrite(BeeperPin, 255);
             delay(9);
             analogWrite(BeeperPin, 0);
             human_detected = true;
-        }
-    }
-
-    // Fire detected case
-    else {
-        if (temp_head > temp_rear) {
-            fire_temp_prob = map(temp_head, fire_min_temp, fire_max_temp, 90.0, 100.0);
-        } else {
-            fire_temp_prob = map(temp_rear, fire_min_temp, fire_max_temp, 90.0, 100.0);
-        }
-        humidity = map(humidity, 1.0, 100.0, 100.0, 1.0);
-        // Mathematically: fire_prob = (90->100) * (100/100->1/100) = 9-100%, min_value=9*1= 9%, max_value=10*10= 100%
-        fire_prob = fire_temp_prob * humidity /100;
-        if (fire_prob > 40.0){
-            analogWrite(BeeperPin, 255);
-            delay(99);
-            analogWrite(BeeperPin, 0);
-            fire_detected = true;
         }
     }
     Serial.print(human_prob);
@@ -400,6 +401,7 @@ void loop() {
   // Serial.print(",");
   // Serial.print(gps.location.lng(), 6);
   Serial.print(" ");
+  // get state (human or fire detected)
   get_state(temp_head, temp_rear, humidity);
   if (human_detected) {
     Serial.print("y");
@@ -415,7 +417,6 @@ void loop() {
   else {
     Serial.print("n");
   }
-  // get state (human or fire detected)
   
   Serial.println();
   

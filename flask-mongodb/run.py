@@ -89,8 +89,6 @@ def login():
 
 
 # !!!!!!!!! To delete ################
-# !!!!!!!!! To delete ################
-# !!!!!!!!! To delete ################
 @app.route("/account/<email>", methods=['GET'])
 def get_profile(email):
     user_info = user.find_one({"email": email})
@@ -138,17 +136,6 @@ def get_profiles():
     return response, 200
 
 
-@app.route("/del_user/<email>", methods=['DELETE'])
-@jwt_required()
-def del_user(email):
-    identity = get_jwt_identity()
-    res = check_ban(identity)
-    if res:
-        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
-    user.delete_one({"email": email})
-    return "Deleted!", 200
-
-
 @app.route("/mod_user/<email>", methods=['PUT'])
 @jwt_required()
 def mod_user(email):
@@ -191,10 +178,22 @@ def update_password():
         return jsonify(message="Error while password updating"), 422
 
 
+@app.route("/del_user/<email>", methods=['DELETE'])
+@jwt_required()
+def del_user(email):
+    identity = get_jwt_identity()
+    res = check_ban(identity)
+    if res:
+        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
+    user.delete_one({"email": email})
+    return "Deleted!", 200
+
+
+# Sessions routes
 db = conn.RobotData
 
 
-@app.route("/get-seance/<seance_id>", methods=['GET'])
+@app.route("/get_seance/<seance_id>", methods=['GET'])
 @jwt_required()
 def get_seance(seance_id):
     collection = db[seance_id]
@@ -222,7 +221,7 @@ def get_seance(seance_id):
         }
         presets.append(preset)
     response = flask.jsonify(presets)
-    return response
+    return response, 200
 
 
 @app.route("/session_info/<seance_id>", methods=['GET'])
@@ -272,7 +271,7 @@ def get_session_info(seance_id):
             }
             presets.append(preset)
     response = flask.jsonify(presets)
-    return response
+    return response, 200
 
 
 @app.route("/all_sessions_man", methods=['GET'])
@@ -302,10 +301,10 @@ def all_sessions_man():
         presets.append(preset)
 
     response = flask.jsonify(presets)
-    return response
+    return response, 200
 
 
-@app.route("/del-seance/<seance_id>", methods=['DELETE'])
+@app.route("/del_seance/<seance_id>", methods=['DELETE'])
 @jwt_required()
 def del_seance(seance_id):
     identity = get_jwt_identity()
@@ -317,7 +316,7 @@ def del_seance(seance_id):
     return "Deleted!", 200
 
 
-@app.route("/mod-seance/<seance_id>/<new_seance_id>", methods=['POST'])
+@app.route("/mod_seance/<seance_id>/<new_seance_id>", methods=['POST'])
 @jwt_required()
 def mod_seance(seance_id, new_seance_id):
     identity = get_jwt_identity()
@@ -329,12 +328,12 @@ def mod_seance(seance_id, new_seance_id):
     return "Modified!", 200
 
 
-@app.route("/all-sessions", methods=['GET'])
+@app.route("/all_sessions", methods=['GET'])
 @jwt_required()
 def all_sessions():
     collections_sorted = get_all_sessions()
     response = flask.jsonify(collections_sorted)
-    return response
+    return response, 200
 
 
 def to_number(value):
@@ -355,6 +354,8 @@ def check_ban(identity):
             print("Pymongo error code: ", err)
             print("Error while role hacking!!! password can't banned for: ", identity['email'])
             return True
+    else:
+        return False
 
 
 def get_all_sessions():

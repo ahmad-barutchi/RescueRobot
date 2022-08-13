@@ -150,20 +150,9 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleTempOn() {
-    /* console.log(this.data);
-    console.log("pushed");
-    this.data[5] = this.tempDisplay;
-    this.brushes[5] = "Brown";
-    console.log(this.data);
-    this.ref.markForCheck(); */
-    this.reloadComponent();
-  }
-
   toggleTempOFF() {
     if (this.toggle_temp_bool) {
       const index = this.data.findIndex(x => x === this.tempDisplay);
-      console.log(index);
       this.data = this.data.filter(item => item !== this.data[0]);
       this.brushes = this.brushes.filter(item => item !== this.brushes[0]);
     }
@@ -173,7 +162,6 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
 
   toggleTemp2OFF() {
     const index = this.data.findIndex(x => x === this.temp2Display);
-    console.log(index);
     if (this.toggle_temp2_bool) {
       this.data = this.data.filter(item => item !== this.data[index]);
       this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
@@ -184,7 +172,6 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
 
   toggleAmbTempOFF() {
     const index = this.data.findIndex(x => x === this.ambTempDisplay);
-    console.log(index);
     if (this.toggle_ambTemp_bool) {
       this.data = this.data.filter(item => item !== this.data[index]);
       this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
@@ -195,7 +182,6 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
 
   toggleHumidityOFF() {
     const index = this.data.findIndex(x => x === this.humidityDisplay);
-    console.log(index);
     if (this.toggle_humidity_bool) {
       this.data = this.data.filter(item => item !== this.data[index]);
       this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
@@ -206,7 +192,6 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
 
   toggleHumanOFF() {
     const index = this.data.findIndex(x => x === this.humanDisplay);
-    console.log(index);
     if (this.toggle_human_bool) {
       this.data = this.data.filter(item => item !== this.data[index]);
       this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
@@ -217,7 +202,6 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
 
   toggleFireOFF() {
     const index = this.data.findIndex(x => x === this.fireDisplay);
-    console.log(index);
     if (this.toggle_fire_bool) {
       this.data = this.data.filter(item => item !== this.data[index]);
       this.brushes = this.brushes.filter(item => item !== this.brushes[index]);

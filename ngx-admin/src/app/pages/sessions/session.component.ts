@@ -24,7 +24,7 @@ export class SessionComponent implements OnInit {
 
   changeSession(session_id: any) {
     localStorage.setItem("session", JSON.stringify(session_id));
-    this.httpClient.get<any>(Setting.baseUrl + 'get-seance/' + session_id).subscribe(
+    this.httpClient.get<any>(Setting.baseUrl + 'get_seance/' + session_id).subscribe(
       temps => {
         localStorage.setItem("datas", JSON.stringify(temps));
       });
@@ -32,7 +32,7 @@ export class SessionComponent implements OnInit {
   }
 
   getSessions() {
-    this.httpClient.get<any>(Setting.baseUrl + 'all-sessions').subscribe(
+    this.httpClient.get<any>(Setting.baseUrl + 'all_sessions').subscribe(
       sessions => {
         localStorage.setItem("sessions", JSON.stringify(sessions));
       });

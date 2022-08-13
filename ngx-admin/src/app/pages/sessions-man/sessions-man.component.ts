@@ -52,7 +52,7 @@ export class SessionsManComponent {
   onDeleteConfirm(event): void {
     if (window.confirm('Are you sure you want to delete ' + event['data']['name'] + '?')) {
       event.confirm.resolve();
-      this.httpClient.delete<any>(Setting.baseUrl + 'del-seance/' + event['data']['name']).subscribe(
+      this.httpClient.delete<any>(Setting.baseUrl + 'del_seance/' + event['data']['name']).subscribe(
         temps => {});
       this.reloadComponent();
     } else {
@@ -63,7 +63,7 @@ export class SessionsManComponent {
   onEditConfirm(event): void {
     if (window.confirm('Are you sure you want to edit ' + event['data']['name'] + '?')) {
       event.confirm.resolve();
-      this.httpClient.post<any>(Setting.baseUrl + 'mod-seance/' + event['data']['name'] + '/' + event['newData']['name'], { title: 'Session Modified' }).subscribe(
+      this.httpClient.post<any>(Setting.baseUrl + 'mod_seance/' + event['data']['name'] + '/' + event['newData']['name'], { title: 'Session Modified' }).subscribe(
         temps => {});
       this.reloadComponent();
     } else {

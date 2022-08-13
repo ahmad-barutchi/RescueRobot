@@ -69,7 +69,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getSessions() {
-    this.httpClient.get<any>(Setting.baseUrl + 'all-sessions').subscribe(
+    this.httpClient.get<any>(Setting.baseUrl + 'all_sessions').subscribe(
       sessions => {
         this.sessions = sessions;
       });

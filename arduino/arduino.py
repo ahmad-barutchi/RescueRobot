@@ -47,15 +47,18 @@ minutes = 0
 seconds = 0
 
 try:
-    for x in range(350):
+    for x in range(555):
         time.sleep(1)
         data = arduino.readline()  # read the data from the arduino
         data = data[0:-2]
         data = data.decode('ascii')
+        if '\\x' in data:
+            print("corrupted data!! bytes or bytearray")
+            break
         pieces = data.split(" ")  # split the data by the space
         print(pieces)
-        if (None or '') in pieces or len(pieces) < 6:
-            print("corrupted data!!!!!!!!")
+        if (None or '') in pieces or len(pieces) < 9 or len(pieces) > 9:
+            print("corrupted data!!")
             break
 
         tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -65,7 +68,6 @@ try:
         hour = tm[11:13]
         minutes = tm[14:16]
         seconds = tm[17:19]
-        print(year, month, date, hour, minutes, seconds)
         if pieces[7] == 'y' or pieces[8] == 'y':
             origin = "Human" if pieces[7] == 'y' else "Fire"
         else:
