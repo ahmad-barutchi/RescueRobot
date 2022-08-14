@@ -1,7 +1,5 @@
 import json
 import unittest
-from time import sleep
-
 import requests
 
 
@@ -37,7 +35,7 @@ class ApiTest(unittest.TestCase):
 
     # Admin object
     ADMIN_OBJECT_LOGIN = {
-        "email": "a@a.a",
+        "email": "aa@a.aa",
         "password": "1234"
     }
 
@@ -83,8 +81,13 @@ class ApiTest(unittest.TestCase):
 
     # SESSIONS TESTS
 
-    SESSION_NAME = "Seance1"
-    SESSION_NEW_NAME = "Seance2"
+    SESSION_NAME = "Seance100"
+    SESSION_NEW_NAME = "Seance101"
+
+    def test_create_seance(self):
+        response = requests.post(self.API_URL + "create_seance/" + self.SESSION_NAME,
+                                 headers=self.ADMIN_TOKEN_HEADER)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_seance(self):
         response = requests.get(self.API_URL + "get_seance/" + self.SESSION_NAME,
@@ -100,14 +103,14 @@ class ApiTest(unittest.TestCase):
         response = requests.get(self.API_URL + "all_sessions_man", headers=self.ADMIN_TOKEN_HEADER)
         self.assertEqual(response.status_code, 200)
 
-    def test_del_seance(self):
-        response = requests.delete(self.API_URL + "del_seance/" + self.SESSION_NAME,
-                                   headers=self.ADMIN_TOKEN_HEADER)
-        self.assertEqual(response.status_code, 200)
-
     def test_mod_seance(self):
         response = requests.post(self.API_URL + "mod_seance/" + self.SESSION_NAME + "/" + self.SESSION_NEW_NAME,
                                  headers=self.ADMIN_TOKEN_HEADER)
+        self.assertEqual(response.status_code, 200)
+
+    def test_del_seance(self):
+        response = requests.delete(self.API_URL + "del_seance/" + self.SESSION_NEW_NAME,
+                                   headers=self.ADMIN_TOKEN_HEADER)
         self.assertEqual(response.status_code, 200)
 
     def test_all_sessions(self):

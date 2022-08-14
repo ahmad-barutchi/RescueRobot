@@ -31,6 +31,7 @@ app.config["JWT_SECRET_KEY"] = "AXenN65T!lfe44deoJR"
 # Regular expressions for injection security
 email_regex = '^[a-z0-9]+[\\._]?[a-z0-9]+[@]\\w+[.]\\w{2,3}$'
 password_regex = r'[A-Za-z0-9@#$%^&+=]{4,}'  # set last 4 to 8 for 8 char
+name_regex = r'[A-Za-z0-9 ]{4,}'  # set last 4 to 8 for 8 char
 
 
 @app.route("/register", methods=["POST"])
@@ -58,8 +59,8 @@ def register():
     else:
         first_name = request.json["fullName"]
         password = request.json["password"]
-        if check_password_reg(password):
-            return jsonify(message="Please respect password regex!"), 403
+        if check_password_reg(password) or check_name_reg(first_name):
+            return jsonify(message="Please respect regex!"), 403
         user_info = dict(first_name=first_name, email=email, role=role,
                          password=generate_password_hash(password, method='sha512'))
         user.insert_one(user_info)
@@ -74,7 +75,8 @@ def login():
     # Form request fields
     email = request.json["email"]
     password = request.json["password"]
-
+    if check_password_reg(password) or check_email_reg(email):
+        return jsonify(message="Please respect regex!"), 403
     current_user = user.find_one({"email": email})
     identity = {"email": email}
     if current_user:
@@ -104,7 +106,6 @@ def get_profile(email):
 @jwt_required()
 def get_profiles():
     identity = get_jwt_identity()
-    print(identity)
     res = check_ban(identity)
     if res:
         return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
@@ -167,6 +168,8 @@ def mod_user(email):
 def update_password():
     identity = get_jwt_identity()
     password = request.json["password"]
+    if check_password_reg(password):
+        return jsonify(message="Please respect regex!"), 403
     query = {"email": identity['email']}
     new_query = {"$set": {"password": generate_password_hash(password, method='sha512')}}
     try:
@@ -292,6 +295,7 @@ def all_sessions_man():
         end_cursor = collection.find()
         end = {}
         for end_cursor_item in end_cursor:
+
             end = end_cursor_item
         preset = {
             "name": col,
@@ -302,6 +306,37 @@ def all_sessions_man():
 
     response = flask.jsonify(presets)
     return response, 200
+
+
+@app.route("/create_seance/<seance_id>", methods=['POST'])
+@jwt_required()
+def create_seance(seance_id):
+    identity = get_jwt_identity()
+    res = check_ban(identity)
+    if res:
+        return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
+    collection = db[seance_id]
+    frame = {
+        "year": "2022",
+        "month": "09",
+        "date": "06",
+        "hour": "10",
+        "minutes": "45",
+        "seconds": "15",
+        "datetime": "2022" + '/' + "09" + '/' + "06" + ' ' + "10" + ':' + "45" + ':' + "15",
+        "temp": "23.2",
+        "temp2": "22.9",
+        "ambTemp": "23.8",
+        "humidity": "39",
+        "pos": "50.461416,3.957607",
+        "humanProb": "5.4",
+        "fireProb": "0",
+        "human": "n",
+        "fire": "n",
+        "origin": "None"
+    }
+    collection.insert_one(frame)
+    return "Created!", 200
 
 
 @app.route("/del_seance/<seance_id>", methods=['DELETE'])
@@ -380,6 +415,13 @@ def check_email_reg(email):
 
 def check_password_reg(password):
     if re.fullmatch(password_regex, password):
+        return False
+    else:
+        return True
+
+
+def check_name_reg(name):
+    if re.fullmatch(name_regex, name):
         return False
     else:
         return True

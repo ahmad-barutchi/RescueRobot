@@ -72,6 +72,12 @@ try:
             origin = "Human" if pieces[7] == 'y' else "Fire"
         else:
             origin = "None"
+        pieces[0] = float(pieces[0])
+        pieces[1] = float(pieces[1])
+        pieces[2] = float(pieces[2])
+        pieces[3] = float(pieces[3])
+        pieces[5] = float(pieces[5])
+        pieces[6] = float(pieces[6])
         frame = {
             "year": year,
             "month": month,
