@@ -79,8 +79,6 @@ bool auto_bool;
 boolean direction_bool = false;
 unsigned long last_case;
 
-bool human_detected;
-bool fire_detected;
 String gpsLat;
 String gpsLong;
 String gpsPos;
@@ -238,26 +236,15 @@ int getDirection() {
   delay(333);
   servo7.write(30);
   dis3 = getDistance();
-  Serial.println("distances: ");
-  Serial.print(dis1);
-    Serial.print(", ");
-  Serial.print(dis2);
-    Serial.print(", ");
-  Serial.print(dis3);
-    Serial.print(", ");
   float dis = max(max(dis1, dis2), dis3);
   if (dis == dis1) {
-    Serial.print("Left");
     return 0; // Left
   }
   else if (dis == dis2) {
-    Serial.print("Ahead");
     return 1; //Ahead
   } else {
-    Serial.print("Right");
     return 2; // Right
   }
-  Serial.println("");
 }
 
 // Get state of Human, Fire detected with probability.
@@ -271,26 +258,27 @@ void get_state(float temp_head, float temp_rear, float humidity){
         human_temp_prob = human_temp_prob / 2.0;
         // Mathematically: human_prob = (0->30) * (1/100->100/100) = 0-30%  MinValue= 0*0/100 = 0, MaxValue = 30*1
         human_prob = human_temp_prob * humidity / 100.0;
-        human_detected = false;
-        fire_detected = false;
+        Serial.print("None ");
     }
 
     // Fire detected case
     else if(temp_head > human_max_temp || temp_rear > human_max_temp) {
         if (temp_head > temp_rear) {
-            fire_temp_prob = map(temp_head, fire_min_temp, fire_max_temp, 50.0, 100.0);
+            fire_temp_prob = map(temp_head, fire_min_temp, fire_max_temp, 50.0, 99.9);
         } else {
-            fire_temp_prob = map(temp_rear, fire_min_temp, fire_max_temp, 50.0, 100.0);
+            fire_temp_prob = map(temp_rear, fire_min_temp, fire_max_temp, 50.0, 99.9);
         }
-        humidity = map(humidity, 1.0, 100.0, 100.0, 1.0);
+        humidity = map(humidity, 1.0, 100.0, 99.9, 1.0);
         // Mathematically: fire_prob = (50->100) * (100/100->1/100) = 50-100%, Min_value=50*1= 50%, Max_value=100*1= 100%
         fire_prob = fire_temp_prob * humidity /100.0;
-        
         if (fire_prob > 30.0){
             analogWrite(BeeperPin, 255);
-            delay(159);
+            delay(99);
             analogWrite(BeeperPin, 0);
-            fire_detected = true;
+            Serial.print("Fire ");
+        }
+        else {
+          Serial.print("None ");
         }
     }
 
@@ -315,13 +303,16 @@ void get_state(float temp_head, float temp_rear, float humidity){
             analogWrite(BeeperPin, 255);
             delay(9);
             analogWrite(BeeperPin, 0);
-            human_detected = true;
+            Serial.print("Human ");
+        }
+        else {
+          Serial.print("None ");
         }
     }
     Serial.print(human_prob);
     Serial.print(" ");
     Serial.print(fire_prob);
-    Serial.print(" ");
+    // Serial.print(" ");
 }
 
 void auto_mode(float temp_head, float temp_rear) {
@@ -345,9 +336,6 @@ void auto_mode(float temp_head, float temp_rear) {
 }
 
 void loop() {
-  human_detected = false;
-  fire_detected = false;
-  
   while (ss.available() > 0){
     if (gps.encode(ss.read())){
     }
@@ -403,21 +391,6 @@ void loop() {
   Serial.print(" ");
   // get state (human or fire detected)
   get_state(temp_head, temp_rear, humidity);
-  if (human_detected) {
-    Serial.print("y");
-  }
-  else {
-    Serial.print("n");
-  }
-  Serial.print(" ");
-
-  if (fire_detected) {
-    Serial.print("y");
-  }
-  else {
-    Serial.print("n");
-  }
-  
   Serial.println();
   
   irrecv.decode(&results); // IR signal received?

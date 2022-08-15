@@ -47,8 +47,8 @@ minutes = 0
 seconds = 0
 
 try:
-    for x in range(555):
-        time.sleep(1)
+    for x in range(120):
+        # time.sleep(1)
         data = arduino.readline()  # read the data from the arduino
         data = data[0:-2]
         data = data.decode('ascii')
@@ -57,7 +57,7 @@ try:
             break
         pieces = data.split(" ")  # split the data by the space
         print(pieces)
-        if (None or '') in pieces or len(pieces) < 9 or len(pieces) > 9:
+        if (None or '') in pieces or len(pieces) < 8 or len(pieces) > 8:
             print("corrupted data!!")
             break
 
@@ -68,16 +68,12 @@ try:
         hour = tm[11:13]
         minutes = tm[14:16]
         seconds = tm[17:19]
-        if pieces[7] == 'y' or pieces[8] == 'y':
-            origin = "Human" if pieces[7] == 'y' else "Fire"
-        else:
-            origin = "None"
         pieces[0] = float(pieces[0])
         pieces[1] = float(pieces[1])
         pieces[2] = float(pieces[2])
         pieces[3] = float(pieces[3])
-        pieces[5] = float(pieces[5])
         pieces[6] = float(pieces[6])
+        pieces[7] = float(pieces[7])
         frame = {
             "year": year,
             "month": month,
@@ -91,11 +87,9 @@ try:
             "ambTemp": pieces[2],
             "humidity": pieces[3],
             "pos": pieces[4],
-            "humanProb": pieces[5],
-            "fireProb": pieces[6],
-            "human": pieces[7],
-            "fire": pieces[8],
-            "origin": origin
+            "origin": pieces[5],
+            "humanProb": pieces[6],
+            "fireProb": pieces[7],
         }
         # Here we are going to insert the data into the Database
         try:

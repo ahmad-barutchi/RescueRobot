@@ -10,9 +10,6 @@ float min_global_temp = -20.0;
 float human_prob = 0.0;
 float fire_prob = 0.0;
 
-bool human_detected;
-bool fire_detected;
-
 void setup() {
   Serial.begin(9600);
 }
@@ -28,8 +25,7 @@ void get_state(float temp_head, float temp_rear, float humidity){
         human_temp_prob = human_temp_prob / 2.0;
         // Mathematically: human_prob = (0->30) * (1/100->100/100) = 0-30%  MinValue= 0*0/100 = 0, MaxValue = 30*1
         human_prob = human_temp_prob * humidity / 100.0;
-        human_detected = false;
-        fire_detected = false;
+        Serial.print("None ");
     }
 
     // Fire detected case
@@ -43,7 +39,10 @@ void get_state(float temp_head, float temp_rear, float humidity){
         // Mathematically: fire_prob = (50->100) * (100/100->1/100) = 50-100%, Min_value=50*1= 50%, Max_value=100*1= 100%
         fire_prob = fire_temp_prob * humidity /100.0;
         if (fire_prob > 30.0){
-            fire_detected = true;
+            Serial.print("Fire ");
+        } 
+        else {
+          Serial.print("None ");
         }
     }
 
@@ -65,18 +64,19 @@ void get_state(float temp_head, float temp_rear, float humidity){
         // Mathematically: human_prob = (50->100) * (1/100->100/100) = 50-100%, Min_value=50*1= 50%, Max_value=100*1= 100%
         human_prob = human_temp_prob * humidity / 100.0;
         if (human_prob > 30.0){
-            human_detected = true;
+            Serial.print("Human ");
+        }
+        else {
+          Serial.print("None ");
         }
     }
     Serial.print(human_prob);
     Serial.print(" ");
     Serial.print(fire_prob);
-    Serial.print(" ");
+    // Serial.print(" ");
 }
 
 void loop() {
-  human_detected = false;
-  fire_detected = false;
   for (int humidity = 0; humidity <= 100; humidity+=9) {
     for (int temp2 = 0; temp2 <= 100; temp2+=9) {
       for (int temp = 0; temp <= 100; temp+=9) {
@@ -91,20 +91,6 @@ void loop() {
         Serial.print("pos");
         Serial.print(" ");
         get_state(temp, temp2, humidity);
-        if (human_detected) {
-          Serial.print("y");
-        }
-        else {
-          Serial.print("n");
-        }
-        Serial.print(" ");
-      
-        if (fire_detected) {
-          Serial.print("y");
-        }
-        else {
-          Serial.print("n");
-        }
         Serial.println();
       }
     }

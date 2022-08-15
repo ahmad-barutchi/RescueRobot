@@ -33,7 +33,6 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
   public fire: number;
   public brushes: Array<any>;
 
-  public series: Array<any> = [];
   call_timer: any;
   private toggle_temp_bool: boolean = true;
   private toggle_temp2_bool: boolean = true;
@@ -56,7 +55,7 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
       .pipe(
         tap(() => {
           this.dataService.getTemps().subscribe(response => {
-            this.records = response.map(item => {
+            response.map(item => {
               let lat: string = item['pos'];
               let long: string = item['pos'];
               lat = lat.substr(0, 9);
@@ -130,10 +129,7 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
             this.human_title.title = 'human';
             this.fire_title = this.fireDisplay;
             this.fire_title.title = 'fire';
-            this.series.push(this.humidityDisplay);
-            this.series.push(this.temp2Display);
             this.data = [this.tempDisplay, this.temp2Display, this.ambTempDisplay, this.humidityDisplay, this.humanDisplay, this.fireDisplay ];
-            // this.data = this.series;
             this.ref.markForCheck();
           });
         })).subscribe();
@@ -153,8 +149,8 @@ export class IgniteuiMultigraphComponent implements OnInit, OnDestroy {
   toggleTempOFF() {
     if (this.toggle_temp_bool) {
       const index = this.data.findIndex(x => x === this.tempDisplay);
-      this.data = this.data.filter(item => item !== this.data[0]);
-      this.brushes = this.brushes.filter(item => item !== this.brushes[0]);
+      this.data = this.data.filter(item => item !== this.data[index]);
+      this.brushes = this.brushes.filter(item => item !== this.brushes[index]);
     }
     this.toggle_temp_bool = false;
     this.ref.markForCheck();

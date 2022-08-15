@@ -23,6 +23,7 @@ user = db["User"]
 # Initiate Flask application
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
+api_prefix = "/api/v1"
 
 # Json web token (JWT)
 jwt = JWTManager(app)
@@ -34,7 +35,7 @@ password_regex = r'[A-Za-z0-9@#$%^&+=]{4,}'  # set last 4 to 8 for 8 char
 name_regex = r'[A-Za-z0-9 ]{4,}'  # set last 4 to 8 for 8 char
 
 
-@app.route("/register", methods=["POST"])
+@app.route(api_prefix + "/register", methods=["POST"])
 def register():
     """
     Method to signup a user, this method receive the request body with the ``email, first_name, password``
@@ -69,7 +70,7 @@ def register():
         return jsonify(message="User added successfully", token=token), 201
 
 
-@app.route("/login", methods=["POST"])
+@app.route(api_prefix + "/login", methods=["POST"])
 def login():
     bool_login = False
     # Form request fields
@@ -91,7 +92,7 @@ def login():
 
 
 # !!!!!!!!! To delete ################
-@app.route("/account/<email>", methods=['GET'])
+@app.route(api_prefix + "/account/<email>", methods=['GET'])
 def get_profile(email):
     user_info = user.find_one({"email": email})
     profile = {
@@ -102,7 +103,7 @@ def get_profile(email):
     return response
 
 
-@app.route("/accounts", methods=['GET'])
+@app.route(api_prefix + "/accounts", methods=['GET'])
 @jwt_required()
 def get_profiles():
     identity = get_jwt_identity()
@@ -137,7 +138,7 @@ def get_profiles():
     return response, 200
 
 
-@app.route("/mod_user/<email>", methods=['PUT'])
+@app.route(api_prefix + "/mod_user/<email>", methods=['PUT'])
 @jwt_required()
 def mod_user(email):
     identity = get_jwt_identity()
@@ -163,7 +164,7 @@ def mod_user(email):
     return "Modified!", 200
 
 
-@app.route("/password", methods=['POST'])
+@app.route(api_prefix + "/password", methods=['POST'])
 @jwt_required()
 def update_password():
     identity = get_jwt_identity()
@@ -181,7 +182,7 @@ def update_password():
         return jsonify(message="Error while password updating"), 422
 
 
-@app.route("/del_user/<email>", methods=['DELETE'])
+@app.route(api_prefix + "/del_user/<email>", methods=['DELETE'])
 @jwt_required()
 def del_user(email):
     identity = get_jwt_identity()
@@ -196,7 +197,7 @@ def del_user(email):
 db = conn.RobotData
 
 
-@app.route("/get_seance/<seance_id>", methods=['GET'])
+@app.route(api_prefix + "/get_seance/<seance_id>", methods=['GET'])
 @jwt_required()
 def get_seance(seance_id):
     collection = db[seance_id]
@@ -212,8 +213,6 @@ def get_seance(seance_id):
             "pos": record["pos"],
             "humanProb": float(record["humanProb"]),
             "fireProb": float(record["fireProb"]),
-            "human": record["human"],
-            "fire": record["fire"],
             "origin": record["origin"],
             "year": record["year"],
             "month": record["month"],
@@ -227,7 +226,7 @@ def get_seance(seance_id):
     return response, 200
 
 
-@app.route("/session_info/<seance_id>", methods=['GET'])
+@app.route(api_prefix + "/session_info/<seance_id>", methods=['GET'])
 @jwt_required()
 def get_session_info(seance_id):
     temp = request.args.get('temp_like')
@@ -277,7 +276,7 @@ def get_session_info(seance_id):
     return response, 200
 
 
-@app.route("/all_sessions_man", methods=['GET'])
+@app.route(api_prefix + "/all_sessions_man", methods=['GET'])
 @jwt_required()
 def all_sessions_man():
     identity = get_jwt_identity()
@@ -294,11 +293,18 @@ def all_sessions_man():
         start = collection.find_one()
         end_cursor = collection.find()
         end = {}
+        try:
+            name = start["name"]
+        except Exception:
+            name = ""
+        print(name)
+        #             "session_name": start["name"],
         for end_cursor_item in end_cursor:
 
             end = end_cursor_item
         preset = {
             "name": col,
+            "session_name": name,
             "start": start["datetime"],
             "end": end["datetime"]
         }
@@ -308,7 +314,7 @@ def all_sessions_man():
     return response, 200
 
 
-@app.route("/create_seance/<seance_id>", methods=['POST'])
+@app.route(api_prefix + "/create_seance/<seance_id>", methods=['POST'])
 @jwt_required()
 def create_seance(seance_id):
     identity = get_jwt_identity()
@@ -339,7 +345,7 @@ def create_seance(seance_id):
     return "Created!", 200
 
 
-@app.route("/del_seance/<seance_id>", methods=['DELETE'])
+@app.route(api_prefix + "/del_seance/<seance_id>", methods=['DELETE'])
 @jwt_required()
 def del_seance(seance_id):
     identity = get_jwt_identity()
@@ -351,19 +357,32 @@ def del_seance(seance_id):
     return "Deleted!", 200
 
 
-@app.route("/mod_seance/<seance_id>/<new_seance_id>", methods=['POST'])
+@app.route(api_prefix + "/mod_seance/<seance_id>", methods=['POST'])
 @jwt_required()
-def mod_seance(seance_id, new_seance_id):
+def mod_seance(seance_id):
     identity = get_jwt_identity()
     res = check_ban(identity)
     if res:
         return jsonify(message="Not authorized! Please sign in again and take contact with administration btw."), 422
     collection = db[seance_id]
-    collection.rename(new_seance_id)
+
+    new_seance_id = request.args.get("name")
+    name = request.args.get("session_name")
+
+    if name is not None:
+        session_name_upd_args = {
+            "name": name,
+        }
+        upd = {"$set": session_name_upd_args}
+        first = collection.find_one()
+        collection.update_one(first, upd)
+
+    if new_seance_id is not None:
+        collection.rename(new_seance_id)
     return "Modified!", 200
 
 
-@app.route("/all_sessions", methods=['GET'])
+@app.route(api_prefix + "/all_sessions", methods=['GET'])
 @jwt_required()
 def all_sessions():
     collections_sorted = get_all_sessions()

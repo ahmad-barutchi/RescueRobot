@@ -30,15 +30,19 @@ export class SessionsManComponent {
     },
     columns: {
       name: {
-        title: 'Séance',
+        title: 'Session ID',
+        type: 'string',
+      },
+      session_name: {
+        title: 'Session name',
         type: 'string',
       },
       start: {
-        title: 'Début',
+        title: 'Start',
         type: 'any',
       },
       end: {
-        title: 'Fin',
+        title: 'End',
         type: 'any',
       },
     },
@@ -63,7 +67,15 @@ export class SessionsManComponent {
   onEditConfirm(event): void {
     if (window.confirm('Are you sure you want to edit ' + event['data']['name'] + '?')) {
       event.confirm.resolve();
-      this.httpClient.post<any>(Setting.baseUrl + 'mod_seance/' + event['data']['name'] + '/' + event['newData']['name'], { title: 'Session Modified' }).subscribe(
+      console.log(event);
+      let url = Setting.baseUrl + 'mod_seance/' + event['data']['name'] + '?';
+      if (event['data']['name'] !== event['newData']['name']) {
+        url += "name=" + event['newData']['name'] + '&';
+      }
+      if (event['data']['session_name'] !== event['newData']['session_name']) {
+        url += "session_name=" + event['newData']['session_name'];
+      }
+      this.httpClient.post<any>(url, { title: 'Session Modified' }).subscribe(
         temps => {});
       this.reloadComponent();
     } else {
