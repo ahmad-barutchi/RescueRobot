@@ -1,11 +1,15 @@
 import datetime
 import flask
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure, PyMongoError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 import re
+import json
+
+with open('openapi.json') as f:
+    openapi = json.load(f)
 
 # DATABASE
 # connection to database server (MongoDB) [PORT=27017(DEFAULT), HOST=localhost]
@@ -35,17 +39,27 @@ password_regex = r'[A-Za-z0-9@#$%^&+=]{4,}'  # set last 4 to 8 for 8 char
 name_regex = r'[A-Za-z0-9 ]{4,}'  # set last 4 to 8 for 8 char
 
 
+@app.route(api_prefix + "/swagger", methods=['GET'])
+def get_swagger():
+    return render_template('swaggerui.html')
+
+
+@app.route(api_prefix + "/swagger_openapi", methods=['GET'])
+def get_swagger_openapi():
+    return jsonify(openapi)
+
+
 @app.route(api_prefix + "/register", methods=["POST"])
 def register():
     """
-    Method to signup a user, this method receive the request body with the ``email, first_name, password``
+    Method to signup a user, this method receive the request body with the ``email, fullName, password`` body request,
     then check regex of body request variables, after that pymongo check if email exists and returns
     http status code 409 if that's the case.
     Else it will hash the password with sha512, and insert user data into the database, create token identity
     with [email, role] parameters, and return JSON object with message and token as response with hhtp status code 201
 
     :return:
-        The message and token encoded as JSON with http status code 201 as Flask response.
+        The message "User added successfully" and token encoded as JSON with http status code 201 as Flask response.
     """
     email = request.json['email']
     if check_email_reg(email):
@@ -72,6 +86,18 @@ def register():
 
 @app.route(api_prefix + "/login", methods=["POST"])
 def login():
+    """
+    Method to login a user, this method receive the request body with the ``email, password``
+    then check regex of body request variables, after that pymongo check if email exists and returns
+    http status code 200 if the password match.
+    Else it will hash the password with sha512, and insert user data into the database, create token identity
+    with [email, role] parameters, and return JSON object with message and token as response with hhtp status code 201
+
+
+
+    :return:
+        The message "Login Succeeded!" and token encoded as JSON with http status code 201 as Flask response.
+    """
     bool_login = False
     # Form request fields
     email = request.json["email"]
@@ -284,6 +310,7 @@ def all_sessions_man():
     if res:
         return jsonify(message="Not authorized! Please sign in again, and take contact with administration btw."), 422
     session_name = request.args.get('name_like')
+    session_name_description = request.args.get('session_name_like')
     collections_sorted = get_all_sessions()
     if session_name is not None:
         collections_sorted = [i for i in collections_sorted if i.startswith(session_name)]
@@ -297,8 +324,6 @@ def all_sessions_man():
             name = start["name"]
         except Exception:
             name = ""
-        print(name)
-        #             "session_name": start["name"],
         for end_cursor_item in end_cursor:
 
             end = end_cursor_item
@@ -310,6 +335,7 @@ def all_sessions_man():
         }
         presets.append(preset)
 
+    session_name_description
     response = flask.jsonify(presets)
     return response, 200
 
@@ -330,6 +356,7 @@ def create_seance(seance_id):
         "minutes": "45",
         "seconds": "15",
         "datetime": "2022" + '/' + "09" + '/' + "06" + ' ' + "10" + ':' + "45" + ':' + "15",
+        "name": "Test session here",
         "temp": "23.2",
         "temp2": "22.9",
         "ambTemp": "23.8",
@@ -337,8 +364,6 @@ def create_seance(seance_id):
         "pos": "50.461416,3.957607",
         "humanProb": "5.4",
         "fireProb": "0",
-        "human": "n",
-        "fire": "n",
         "origin": "None"
     }
     collection.insert_one(frame)
@@ -388,13 +413,6 @@ def all_sessions():
     collections_sorted = get_all_sessions()
     response = flask.jsonify(collections_sorted)
     return response, 200
-
-
-def to_number(value):
-    if '.' in value:
-        return float(value)
-    else:
-        return int(value)
 
 
 def check_ban(identity):

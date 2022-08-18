@@ -2,5 +2,6 @@ Flask
 Flask-WTF
 pymongo==3.4.0
 serial
-pytest==7.0.0
+unittest
 flask_swagger_ui
+flask_jwt_extended

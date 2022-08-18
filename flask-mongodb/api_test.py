@@ -103,10 +103,10 @@ class ApiTest(unittest.TestCase):
         response = requests.get(self.API_URL + "all_sessions_man", headers=self.ADMIN_TOKEN_HEADER)
         self.assertEqual(response.status_code, 200)
 
-    # def test_mod_seance(self):
-    #     response = requests.post(self.API_URL + "mod_seance/" + self.SESSION_NAME + "/" + self.SESSION_NEW_NAME,
-    #                              headers=self.ADMIN_TOKEN_HEADER)
-    #     self.assertEqual(response.status_code, 200)
+    def test_mod_seance(self):
+        response = requests.post(self.API_URL + "mod_seance/" + self.SESSION_NAME + "?name=" + self.SESSION_NEW_NAME,
+                                 headers=self.ADMIN_TOKEN_HEADER)
+        self.assertEqual(response.status_code, 200)
 
     def test_del_seance(self):
         response = requests.delete(self.API_URL + "del_seance/" + self.SESSION_NEW_NAME,
