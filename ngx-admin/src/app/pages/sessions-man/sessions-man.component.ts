@@ -75,7 +75,7 @@ export class SessionsManComponent {
       if (event['data']['session_name'] !== event['newData']['session_name']) {
         url += "session_name=" + event['newData']['session_name'];
       }
-      this.httpClient.post<any>(url, { title: 'Session Modified' }).subscribe(
+      this.httpClient.put<any>(url, { title: 'Session Modified' }).subscribe(
         temps => {});
       this.reloadComponent();
     } else {

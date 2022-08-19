@@ -56,7 +56,7 @@ def register():
     then check regex of body request variables, after that pymongo check if email exists and returns
     http status code 409 if that's the case.
     Else it will hash the password with sha512, and insert user data into the database, create token identity
-    with [email, role] parameters, and return JSON object with message and token as response with hhtp status code 201
+    with [email, role] parameters, and return JSON object with message and token as response with http status code 201
 
     :return:
         The message "User added successfully" and token encoded as JSON with http status code 201 as Flask response.
@@ -87,16 +87,15 @@ def register():
 @app.route(api_prefix + "/login", methods=["POST"])
 def login():
     """
-    Method to login a user, this method receive the request body with the ``email, password``
-    then check regex of body request variables, after that pymongo check if email exists and returns
-    http status code 200 if the password match.
-    Else it will hash the password with sha512, and insert user data into the database, create token identity
-    with [email, role] parameters, and return JSON object with message and token as response with hhtp status code 201
-
-
+    Method to login a user, this method receive the request body with the ``email, password`` then check regex of body
+    request variables, after that pymongo check if email exists and the password match, it create token identity
+    with [email, role] parameters, hash the password with sha512. return JSON object with message and token as response
+    with http status code 200.
+    Else it will return http status code 401 in case of (Bad Email or Password).
 
     :return:
         The message "Login Succeeded!" and token encoded as JSON with http status code 201 as Flask response.
+        Else: return http status code 401 in case of bad Email or Password.
     """
     bool_login = False
     # Form request fields
@@ -310,7 +309,7 @@ def all_sessions_man():
     if res:
         return jsonify(message="Not authorized! Please sign in again, and take contact with administration btw."), 422
     session_name = request.args.get('name_like')
-    session_name_description = request.args.get('session_name_like')
+    # session_name_description = request.args.get('session_name_like')
     collections_sorted = get_all_sessions()
     if session_name is not None:
         collections_sorted = [i for i in collections_sorted if i.startswith(session_name)]
@@ -322,8 +321,9 @@ def all_sessions_man():
         end = {}
         try:
             name = start["name"]
-        except Exception:
+        except Exception as err:
             name = ""
+            str(err)
         for end_cursor_item in end_cursor:
 
             end = end_cursor_item
@@ -334,8 +334,6 @@ def all_sessions_man():
             "end": end["datetime"]
         }
         presets.append(preset)
-
-    session_name_description
     response = flask.jsonify(presets)
     return response, 200
 
@@ -382,7 +380,7 @@ def del_seance(seance_id):
     return "Deleted!", 200
 
 
-@app.route(api_prefix + "/mod_seance/<seance_id>", methods=['POST'])
+@app.route(api_prefix + "/mod_seance/<seance_id>", methods=['PUT'])
 @jwt_required()
 def mod_seance(seance_id):
     identity = get_jwt_identity()

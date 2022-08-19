@@ -24,10 +24,6 @@ export class SessionComponent implements OnInit {
 
   changeSession(session_id: any) {
     localStorage.setItem("session", JSON.stringify(session_id));
-    this.httpClient.get<any>(Setting.baseUrl + 'get_seance/' + session_id).subscribe(
-      temps => {
-        localStorage.setItem("datas", JSON.stringify(temps));
-      });
     this.router.navigate(["/pages/session-info"]);
   }
 
