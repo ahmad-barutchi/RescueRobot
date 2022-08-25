@@ -446,7 +446,7 @@ void loop() {
       last_case = 0xFF52AD;
       break;
   }
-  
+
   if ((unsigned long)(currentMillis - previousMillis) >= interval){
     previousMillis = currentMillis;
     irrecv.resume(); // receive the next value

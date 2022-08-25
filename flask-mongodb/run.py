@@ -1,6 +1,7 @@
 import datetime
 import flask
 from flask import Flask, jsonify, request, render_template
+from flask_cors import cross_origin
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure, PyMongoError
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -39,6 +40,12 @@ password_regex = r'[A-Za-z0-9@#$%^&+=]{4,}'  # set last 4 to 8 for 8 char
 name_regex = r'[A-Za-z0-9 ]{4,}'  # set last 4 to 8 for 8 char
 
 
+@app.after_request
+def apply_caching(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+
+
 @app.route(api_prefix + "/swagger", methods=['GET'])
 def get_swagger():
     return render_template('swaggerui.html')
@@ -50,6 +57,7 @@ def get_swagger_openapi():
 
 
 @app.route(api_prefix + "/register", methods=["POST"])
+@cross_origin(origin='*')
 def register():
     """
     Method to signup a user, this method receive the request body with the ``email, fullName, password`` body request,
@@ -62,6 +70,7 @@ def register():
         The message "User added successfully" and token encoded as JSON with http status code 201 as Flask response.
     """
     email = request.json['email']
+    print(email)
     if check_email_reg(email):
         return jsonify(message="Please respect email regex!"), 403
     admin = user.find_one()
@@ -74,6 +83,7 @@ def register():
     else:
         first_name = request.json["fullName"]
         password = request.json["password"]
+        print(first_name)
         if check_password_reg(password) or check_name_reg(first_name):
             return jsonify(message="Please respect regex!"), 403
         user_info = dict(first_name=first_name, email=email, role=role,
@@ -85,6 +95,7 @@ def register():
 
 
 @app.route(api_prefix + "/login", methods=["POST"])
+@cross_origin(origin='*')
 def login():
     """
     Method to login a user, this method receive the request body with the ``email, password`` then check regex of body
@@ -101,6 +112,7 @@ def login():
     # Form request fields
     email = request.json["email"]
     password = request.json["password"]
+    print(email)
     if check_password_reg(password) or check_email_reg(email):
         return jsonify(message="Please respect regex!"), 403
     current_user = user.find_one({"email": email})
@@ -118,6 +130,7 @@ def login():
 
 # !!!!!!!!! To delete ################
 @app.route(api_prefix + "/account/<email>", methods=['GET'])
+@cross_origin(origin='*')
 def get_profile(email):
     user_info = user.find_one({"email": email})
     profile = {
@@ -129,6 +142,7 @@ def get_profile(email):
 
 
 @app.route(api_prefix + "/accounts", methods=['GET'])
+@cross_origin(origin='*')
 @jwt_required()
 def get_profiles():
     identity = get_jwt_identity()
@@ -164,6 +178,7 @@ def get_profiles():
 
 
 @app.route(api_prefix + "/mod_user/<email>", methods=['PUT'])
+@cross_origin(origin='*')
 @jwt_required()
 def mod_user(email):
     identity = get_jwt_identity()
@@ -190,6 +205,7 @@ def mod_user(email):
 
 
 @app.route(api_prefix + "/password", methods=['POST'])
+@cross_origin(origin='*')
 @jwt_required()
 def update_password():
     identity = get_jwt_identity()
@@ -208,6 +224,7 @@ def update_password():
 
 
 @app.route(api_prefix + "/del_user/<email>", methods=['DELETE'])
+@cross_origin(origin='*')
 @jwt_required()
 def del_user(email):
     identity = get_jwt_identity()
@@ -223,7 +240,7 @@ db = conn.RobotData
 
 
 @app.route(api_prefix + "/get_seance/<seance_id>", methods=['GET'])
-@jwt_required()
+@cross_origin(origin='*')
 def get_seance(seance_id):
     collection = db[seance_id]
     cursor = collection.find()
@@ -252,6 +269,7 @@ def get_seance(seance_id):
 
 
 @app.route(api_prefix + "/session_info/<seance_id>", methods=['GET'])
+@cross_origin(origin='*')
 @jwt_required()
 def get_session_info(seance_id):
     temp = request.args.get('temp_like')
@@ -302,6 +320,7 @@ def get_session_info(seance_id):
 
 
 @app.route(api_prefix + "/all_sessions_man", methods=['GET'])
+@cross_origin(origin='*')
 @jwt_required()
 def all_sessions_man():
     identity = get_jwt_identity()
@@ -325,7 +344,6 @@ def all_sessions_man():
             name = ""
             str(err)
         for end_cursor_item in end_cursor:
-
             end = end_cursor_item
         preset = {
             "name": col,
@@ -339,6 +357,7 @@ def all_sessions_man():
 
 
 @app.route(api_prefix + "/create_seance/<seance_id>", methods=['POST'])
+@cross_origin(origin='*')
 @jwt_required()
 def create_seance(seance_id):
     identity = get_jwt_identity()
@@ -369,6 +388,7 @@ def create_seance(seance_id):
 
 
 @app.route(api_prefix + "/del_seance/<seance_id>", methods=['DELETE'])
+@cross_origin(origin='*')
 @jwt_required()
 def del_seance(seance_id):
     identity = get_jwt_identity()
@@ -381,6 +401,7 @@ def del_seance(seance_id):
 
 
 @app.route(api_prefix + "/mod_seance/<seance_id>", methods=['PUT'])
+@cross_origin(origin='*')
 @jwt_required()
 def mod_seance(seance_id):
     identity = get_jwt_identity()
@@ -406,6 +427,7 @@ def mod_seance(seance_id):
 
 
 @app.route(api_prefix + "/all_sessions", methods=['GET'])
+@cross_origin(origin='*')
 @jwt_required()
 def all_sessions():
     collections_sorted = get_all_sessions()

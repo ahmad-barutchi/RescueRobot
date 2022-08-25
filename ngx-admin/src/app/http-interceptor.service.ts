@@ -29,6 +29,8 @@ export class HttpInterceptorService implements HttpInterceptor {
       req = changeUrl;
     }
 
+    req = this.addCorsHeader(req);
+
     if (!req.url.includes('access')) {
       req = this.addAuthenticationToken(req);
       req = this.addJsonHeader(req);
@@ -91,6 +93,17 @@ export class HttpInterceptorService implements HttpInterceptor {
 
     return request.clone({
       headers: request.headers.append('Content-Type', 'application/json'),
+    });
+  }
+
+  private addCorsHeader(request: HttpRequest<any>): HttpRequest<any> {
+
+    if (request.headers.has('Access-Control-Allow-Origin')) {
+      return;
+    }
+
+    return request.clone({
+      headers: request.headers.append('Access-Control-Allow-Origin', 'http://fc3d-81-242-27-194.ngrok.io'),
     });
   }
 
